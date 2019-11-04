@@ -37,29 +37,34 @@ SuperMacro knows to deal with both *Commands* and normal text. A command is eith
 1. Open Windows Explorer and got to C:\Program Files  
 Note: Delay should be ~20 ms  
 ```
-{{win}{e}}{{pause400}}{{alt}{d}}c:\Program Files\{{enter}}
+{{win}{e}}{{pause:400}}{{alt}{d}}c:\Program Files\{{enter}}
 ```
 
 2. Open notepad and play with the settings  
 Note: Delay should be ~20 ms  
 Note2: This will not work correctly if your Windows (and notepad) are not in English  
 ```
-{{win}{r}}{{pause500}}notepad.exe{{enter}}{{pause1000}}Ok... Let's see what this plugin can do...{{alt}{f}}{{right}}{{PAUSE400}}{{right}}{{PAUSE400}}f{{pause400}}times{{down}}{{PAUSE400}}{{tab}}{{PAUSE400}}{{down}}{{PAUSE400}}{{down}}{{PAUSE400}}{{ENTER}}{{ENTER}}For more information visit: https://barider.g1thubio{{ctrl}{shift}{left}}{{PAUSE400}}https://barraider.github.io{{ENTER}}{{alt}{o}}f{{PAUSE100}}Lucida Console{{tab}}Regular{{Tab}}12{{ENTER}}
+{{win}{r}}{{pause:500}}notepad.exe{{enter}}{{pause:1000}}Ok... Let's see what this plugin can do...{{alt}{f}}{{right}}{{PAUSE:400}}{{right}}{{PAUSE:400}}f{{pause:400}}times{{down}}{{PAUSE:400}}{{tab}}{{PAUSE:400}}{{down}}{{PAUSE:400}}{{down}}{{PAUSE:400}}{{ENTER}}{{ENTER}}For more information visit: https://barider.g1thubio{{ctrl}{shift}{left}}{{PAUSE:400}}https://barraider.github.io{{ENTER}}{{alt}{o}}f{{PAUSE:100}}Lucida Console{{tab}}Regular{{Tab}}12{{ENTER}}
 ```
 
 3. Calculate something  
 Note: Delay should be ~20 ms  
 ```
-{{win}{r}}{{pause300}}calc{{enter}}{{pause1000}}1*2*3*4*5=
+{{win}{r}}{{pause:300}}calc{{enter}}{{pause:1000}}1*2*3*4*5=
 ```
 4. Move the mouse to a certain position on the screen
 ```
-{{MOUSEPOS40000,15000}}
+{{MOUSEPOS:40000,15000}}
 ```
 5. Move the mouse by 10 pixels left and 20 pixels down on every press
 ```
-{{MOUSEMOVE-10,20}}
+{{MOUSEMOVE:-10,20}}
 ```
+6. Get input from user and then use it later on.
+```
+{{INPUT:Name}}Hello {{OUTPUT:Name}}, Nice to meet you!
+```
+
 
 ## Download
 https://github.com/BarRaider/streamdeck-supermacro/releases
