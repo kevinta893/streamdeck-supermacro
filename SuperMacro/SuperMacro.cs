@@ -27,11 +27,19 @@ namespace SuperMacro
                     Delay = 10,
                     EnterMode = false,
                     ForcedMacro = false,
-                    KeydownDelay = false
+                    KeydownDelay = false,
+                    IgnoreNewline = false,
+                    LoadFromFiles = false,
+                    PrimaryInputFile = String.Empty,
+                    SecondaryInputFile = String.Empty
                 };
 
                 return instance;
             }
+
+            [FilenameProperty]
+            [JsonProperty(PropertyName = "secondaryInputFile")]
+            public string SecondaryInputFile { get; set; }
 
             [JsonProperty(PropertyName = "longPressInputText")]
             public string LongPressInputText { get; set; }
@@ -61,6 +69,7 @@ namespace SuperMacro
         private bool keyPressed = false;
         private DateTime keyPressStart;
         private bool longKeyPressed = false;
+        private string secondaryMacro;
 
         #endregion
 
@@ -77,6 +86,7 @@ namespace SuperMacro
             {
                 Settings = payload.Settings.ToObject<PluginSettings>();
             }
+            LoadMacros();
         }
 
         public override void KeyPressed(KeyPayload payload)
@@ -92,6 +102,7 @@ namespace SuperMacro
                 forceStop = true;
                 return;
             }
+            LoadMacros(); // Refresh the macros, relevant for if you're reading from a file
         }
 
         public override void KeyReleased(KeyPayload payload)
@@ -101,7 +112,7 @@ namespace SuperMacro
             {
                 Logger.Instance.LogMessage(TracingLevel.INFO, $"Short Keypress {this.GetType()}");
                 forceStop = false;
-                SendInput(Settings.InputText);
+                SendInput(primaryMacro);
             }
         }
 
@@ -137,6 +148,8 @@ namespace SuperMacro
                 Settings.Delay = CommandTools.RECOMMENDED_KEYDOWN_DELAY;
                 Connection.SetSettingsAsync(JObject.FromObject(Settings));
             }
+            LoadMacros();
+            SaveSettings();
         }
 
         #endregion
@@ -148,8 +161,29 @@ namespace SuperMacro
             longKeyPressed = true;
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Long Keypress {this.GetType()}");
             forceStop = false;
-            SendInput(Settings.LongPressInputText);
+            SendInput(secondaryMacro);
             await Connection.ShowOk();
+        }
+
+        protected override Task SaveSettings()
+        {
+            return Connection.SetSettingsAsync(JObject.FromObject(Settings));
+        }
+
+        protected override void LoadMacros()
+        {
+            base.LoadMacros();
+
+            // Handle the secondary
+            secondaryMacro = String.Empty;
+            if (settings.LoadFromFiles)
+            {
+                secondaryMacro = ReadFile(Settings.SecondaryInputFile);
+            }
+            else
+            {
+                secondaryMacro = Settings.LongPressInputText;
+            }
         }
 
         #endregion

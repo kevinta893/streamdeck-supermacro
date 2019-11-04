@@ -1,6 +1,8 @@
 ﻿using BarRaider.SdTools;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,6 +19,7 @@ namespace SuperMacro
         protected bool inputRunning = false;
         protected bool forceStop = false;
         protected MacroSettingsBase settings;
+        protected string primaryMacro;
 
         #endregion
 
@@ -34,13 +37,22 @@ namespace SuperMacro
 
         protected async void SendInput(string inputText)
         {
+            if (String.IsNullOrEmpty(inputText))
+            {
+                return;
+            }
+
             inputRunning = true;
             await Task.Run(() =>
             {
                 InputSimulator iis = new InputSimulator();
                 string text = inputText;
 
-                if (settings.EnterMode)
+                if (settings.IgnoreNewline)
+                {
+                    text = text.Replace("\r\n", "\n").Replace("\n", "");
+                }
+                else if (settings.EnterMode)
                 {
                     text = text.Replace("\r\n", "\n");
                 }
@@ -132,6 +144,37 @@ namespace SuperMacro
             {
                 Logger.Instance.LogMessage(TracingLevel.INFO, $"{this.GetType()} InputChar TextEntry");
                 iis.Keyboard.TextEntry(c);
+            }
+        }
+
+        protected virtual Task SaveSettings()
+        {
+            return Connection.SetSettingsAsync(JObject.FromObject(settings));
+        }
+
+        protected virtual void LoadMacros()
+        {
+            primaryMacro = String.Empty;
+            if (settings.LoadFromFiles)
+            {
+                primaryMacro = ReadFile(settings.PrimaryInputFile);
+            }
+            else
+            {
+                primaryMacro = settings.InputText;
+            }
+        }
+
+        protected string ReadFile(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName) || !File.Exists(fileName))
+            {
+                Logger.Instance.LogMessage(TracingLevel.ERROR, $"ReadFile called but no file {fileName}");
+                return null;
+            }
+            else
+            {
+                return File.ReadAllText(fileName);
             }
         }
     }

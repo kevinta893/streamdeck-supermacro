@@ -27,8 +27,11 @@ namespace SuperMacro
                     EnterMode = false,
                     ForcedMacro = false,
                     KeydownDelay = false,
+                    IgnoreNewline = false,
                     EnabledImageFilename = string.Empty,
-                    DisabledImageFilename = string.Empty
+                    DisabledImageFilename = string.Empty,
+                    LoadFromFiles = false,
+                    PrimaryInputFile = String.Empty,
                 };
 
                 return instance;
@@ -82,6 +85,7 @@ namespace SuperMacro
                 Settings = payload.Settings.ToObject<PluginSettings>();
                 HandleFilenames();
             }
+            LoadMacros();
         }
 
         public override void KeyPressed(KeyPayload payload)
@@ -90,8 +94,9 @@ namespace SuperMacro
             keyPressed = !keyPressed;
             if (keyPressed)
             {
+                LoadMacros(); // Refresh the macros, relevant for if you're reading from a file
                 Logger.Instance.LogMessage(TracingLevel.INFO, $"Command Started");
-                SendStickyInput(Settings.InputText);
+                SendStickyInput(primaryMacro);
             }
         }
 
@@ -137,6 +142,7 @@ namespace SuperMacro
                 Settings.Delay = CommandTools.RECOMMENDED_KEYDOWN_DELAY;
             }
             HandleFilenames();
+            LoadMacros();
         }
 
         #endregion
@@ -152,13 +158,22 @@ namespace SuperMacro
 
         protected async void SendStickyInput(string inputText)
         {
+            if (String.IsNullOrEmpty(inputText))
+            {
+                return;
+            }
+
             inputRunning = true;
             await Task.Run(() =>
             {
                 InputSimulator iis = new InputSimulator();
                 string text = inputText;
 
-                if (Settings.EnterMode)
+                if (settings.IgnoreNewline)
+                {
+                    text = text.Replace("\r\n", "\n").Replace("\n", "");
+                }
+                else if (Settings.EnterMode)
                 {
                     text = text.Replace("\r\n", "\n");
                 }

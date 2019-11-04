@@ -29,11 +29,19 @@ namespace SuperMacro
                     Delay = 10,
                     EnterMode = false,
                     ForcedMacro = false,
-                    KeydownDelay = false
+                    KeydownDelay = false,
+                    IgnoreNewline = false,
+                    LoadFromFiles = false,
+                    PrimaryInputFile = String.Empty,
+                    SecondaryInputFile = String.Empty
                 };
 
                 return instance;
             }
+
+            [FilenameProperty]
+            [JsonProperty(PropertyName = "secondaryInputFile")]
+            public string SecondaryInputFile { get; set; }
 
             [JsonProperty(PropertyName = "secondaryText")]
             public string SecondaryText { get; set; }
@@ -69,6 +77,7 @@ namespace SuperMacro
         string primaryFile = null;
         string secondaryFile = null;
         bool isPrimary = false;
+        string secondaryMacro = String.Empty;
 
         #endregion
 
@@ -86,6 +95,7 @@ namespace SuperMacro
                 Settings = payload.Settings.ToObject<PluginSettings>();
                 HandleFilenames();
             }
+            LoadMacros();
         }
 
         public override void KeyPressed(KeyPayload payload)
@@ -97,9 +107,10 @@ namespace SuperMacro
                 return;
             }
 
+            LoadMacros(); // Refresh the macros, relevant for if you're reading from a file
             forceStop = false;
             isPrimary = !isPrimary;
-            string text = isPrimary ? Settings.InputText : Settings.SecondaryText;
+            string text = isPrimary ? primaryMacro : secondaryMacro;
             SendInput(text);
         }
 
@@ -143,6 +154,7 @@ namespace SuperMacro
                 Settings.Delay = CommandTools.RECOMMENDED_KEYDOWN_DELAY;
             }
             HandleFilenames();
+            LoadMacros();
         }
 
         #endregion
@@ -154,6 +166,22 @@ namespace SuperMacro
             primaryFile = Tools.FileToBase64(Settings.PrimaryImageFilename, true);
             secondaryFile = Tools.FileToBase64(Settings.SecondaryImageFilename, true);
             Connection.SetSettingsAsync(JObject.FromObject(Settings));
+        }
+
+        protected override void LoadMacros()
+        {
+            base.LoadMacros();
+
+            // Handle the secondary
+            secondaryMacro = String.Empty;
+            if (settings.LoadFromFiles)
+            {
+                secondaryMacro = ReadFile(Settings.SecondaryInputFile);
+            }
+            else
+            {
+                secondaryMacro = Settings.SecondaryText;
+            }
         }
 
         #endregion

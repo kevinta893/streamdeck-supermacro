@@ -18,20 +18,60 @@
         <details class="message info">
             <summary>For feedback/suggestions contact me at <span class="linkspan" onclick="openWebsite()">https://BarRaider.com</span> </summary>
         </details>
-        <div type="textarea" class="sdpi-item" id="inputText_div">
-            <div class="sdpi-item-label">Primary Macro</div>
-            <span class="sdpi-item-value textarea">
-                <textarea type="textarea" oninput="setSettings()" class="sdProperty" id="inputText"></textarea>
-            </span>
+        <div type="checkbox" class="sdpi-item" id="dvLoadFromFiles">
+            <div class="sdpi-item-value">
+                <input id="loadFromFiles" class="sdProperty sdCheckbox" type="checkbox" value="" oninput="setSettings()">
+                <label for="loadFromFiles" class="sdpi-item-label"><span></span>Load macros from files</label>
+            </div>
         </div>
-        <script>
-            $('#inputText').highlightWithinTextarea({
-                highlight: /\{(\{[^\{\}]+\})+\}/gi
-            });
-            $("#inputText").focus(function () {
-                $("#inputText").trigger("input.hwt");
-            });
-        </script>
+        <div id="dvFileNames" style="display:none">
+            <div class="sdpi-item" id="dvPrimaryInputFile">
+                <div class="sdpi-item-label">Primary File</div>
+                <div class="sdpi-item-group file" id="filepickergroup">
+                    <input class="sdpi-item-value sdProperty sdFile" type="file" id="primaryInputFile" accept=".txt" oninput="setSettings()">
+                    <label class="sdpi-file-info " for="primaryInputFile" id="primaryInputFileFilename">No file...</label>
+                    <label class="sdpi-file-label" for="primaryInputFile">Choose file...</label>
+                </div>
+            </div>
+            <div class="sdpi-item" id="dvSecondaryInputFile">
+                <div class="sdpi-item-label">Secondary File</div>
+                <div class="sdpi-item-group file" id="filepickergroup">
+                    <input class="sdpi-item-value sdProperty sdFile" type="file" id="secondaryInputFile" accept=".txt" oninput="setSettings()">
+                    <label class="sdpi-file-info " for="secondaryInputFile" id="secondaryInputFileFilename">No file...</label>
+                    <label class="sdpi-file-label" for="secondaryInputFile">Choose file...</label>
+                </div>
+            </div>
+        </div>
+        <div id="dvTextAreas">
+            <div type="textarea" class="sdpi-item" id="inputText_div">
+                <div class="sdpi-item-label">Primary Macro</div>
+                <span class="sdpi-item-value textarea">
+                    <textarea type="textarea" oninput="setSettings()" class="sdProperty" id="inputText"></textarea>
+                </span>
+            </div>
+            <script>
+                $('#inputText').highlightWithinTextarea({
+                    highlight: /\{(\{[^\{\}]+\})+\}/gi
+                });
+                $("#inputText").focus(function () {
+                    $("#inputText").trigger("input.hwt");
+                });
+            </script>
+            <div type="textarea" class="sdpi-item" id="inputText_div">
+                <div class="sdpi-item-label">Secondary Macro</div>
+                <span class="sdpi-item-value textarea">
+                    <textarea type="textarea" oninput="setSettings()" class="sdProperty" id="secondaryText"></textarea>
+                </span>
+            </div>
+            <script>
+                $('#secondaryText').highlightWithinTextarea({
+                    highlight: /\{(\{[^\{\}]+\})+\}/gi
+                });
+                $("#secondaryText").focus(function () {
+                    $("#secondaryText").trigger("input.hwt");
+                });
+            </script>
+        </div>
         <div class="sdpi-item" id="dvKeyImage">
             <div class="sdpi-item-label">Primary Image</div>
             <div class="sdpi-item-group file" id="filepickergroup">
@@ -40,20 +80,6 @@
                 <label class="sdpi-file-label" for="primaryImage">Choose file...</label>
             </div>
         </div>
-        <div type="textarea" class="sdpi-item" id="inputText_div">
-            <div class="sdpi-item-label">Secondary Macro</div>
-            <span class="sdpi-item-value textarea">
-                <textarea type="textarea" oninput="setSettings()" class="sdProperty" id="secondaryText"></textarea>
-            </span>
-        </div>
-        <script>
-            $('#secondaryText').highlightWithinTextarea({
-                highlight: /\{(\{[^\{\}]+\})+\}/gi
-            });
-            $("#secondaryText").focus(function () {
-                $("#secondaryText").trigger("input.hwt");
-            });
-        </script>
         <div class="sdpi-item" id="dvSecondaryImage">
             <div class="sdpi-item-label">Secondary Image</div>
             <div class="sdpi-item-group file" id="filepickergroup">
@@ -86,6 +112,13 @@
             <div class="sdpi-item-value">
                 <input id="keydownDelay" type="checkbox" value="" class="sdProperty sdCheckbox" oninput="setSettings()">
                 <label for="keydownDelay" class="sdpi-item-label"><span></span>Delayed Keydown Mode</label>
+            </div>
+        </div>
+        <div type="checkbox" class="sdpi-item">
+            <div class="sdpi-item-label">New Line</div>
+            <div class="sdpi-item-value">
+                <input id="ignoreNewline" type="checkbox" value="" class="sdProperty sdCheckbox" oninput="setSettings()">
+                <label for="ignoreNewline" class="sdpi-item-label"><span></span>Don't treat "New Line" as Enter</label>
             </div>
         </div>
     </div>

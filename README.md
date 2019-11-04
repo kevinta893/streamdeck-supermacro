@@ -77,10 +77,6 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
             <th align="center">Macro Command</th>
         </tr>
         <tr>
-            <td>PAUSE</td>
-            <td>{PAUSEXXXX} (XXXX = length in miliseconds)</td>
-        </tr>
-        <tr>
             <td>BACKSPACE</td>
             <td>{BACK}</td>
         </tr>
@@ -380,21 +376,42 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
         <tr>
             <td>SCROLL LOCK</td>
             <td>{SCROLL}</td>
-        </tr>
-		<tr>
-            <td>KeyDown</td>
-            <td>{KeyDownXXXX} (XXXX = name of key, example {{KeyDownF1}})</td>
-        </tr>
-		<tr>
-            <td>KeyUp</td>
-            <td>{KeyUpXXXX} (XXXX = name of key, example {{KeyUpSHIFT}})</td>
-        </tr>
+        </tr>     
     </tbody>
 </table>
 
+## Advanced Commands
+Note: Use a `:` between the command name and the arguments
+
+<table id="advanced" border="1">
+    <tbody>
+		<tr>
+            <td>PAUSE</td>
+            <td>{PAUSE:XXXX} (XXXX = length in miliseconds)</td>
+        </tr>
+		<tr>
+            <td>KeyDown</td>
+            <td>{KeyDown:XXXX} (XXXX = name of key, example {{KeyDown:F1}})</td>
+        </tr>
+		<tr>
+            <td>KeyUp</td>
+            <td>{KeyUp:XXXX} (XXXX = name of key, example {{KeyUp:SHIFT}})</td>
+		</tr>
+		<tr>
+			<td>Input</td>
+			<td>{Input:VarName} Get input from the user and store it in 'VarName'.</td>
+		</tr>
+		<tr>
+			<td>Output</td>
+			<td>{Output:MyVar} Output the input previously gathered into 'MyVar'.</td>
+		</tr>
+	</tbody>
+</table>
+
+
 ## Mouse Commands
 
-<table id="commands" border="1">
+<table id="mouse" border="1">
     <tbody>
         <tr>
             <th align="center">Keyboard Key</th>
@@ -462,11 +479,11 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
         </tr>
 		<tr>
             <td>Mouse Move: Based on CURRENT position</td>
-            <td>{MOUSEMOVEX,Y} (Move the cursor by X,Y from current position)</td>
+            <td>{MOUSEMOVE:X,Y} (Move the cursor by X,Y from current position)</td>
         </tr>
 		<tr>
             <td>Mouse Move: based on ABSOLUTE position </td>
-            <td>{MOUSEPOSX,Y} (Move the cursor to the X,Y position on the screen. Values from 0,0 [top-left] to 65535,65535 [bottom-right])</td>
+            <td>{MOUSEPOS:X,Y} (Move the cursor to the X,Y position on the screen. Values from 0,0 [top-left] to 65535,65535 [bottom-right])</td>
         </tr>
   </tbody>
 </table>
