@@ -2,7 +2,12 @@
 
 **Author's website and contact information:** [https://barraider.github.io](https://barraider.github.io)
 
-## What's new in v1.5
+## New in v1.6
+- Marcos can now be loaded directly from a text file (instead of being edited in the Stream Deck App)
+    - Plugin will read the file on keypress to ensure the latest version of the macro is executed
+- New option to ignore "new line" in textbox and only react to `{{enter}}`. Allows you to write macros on multiple lines to make them more readable
+
+## New in v1.5
 - The long awaited ***Variable support*** has now arrived!!!
 :new: You can now get input from the user and store it in variables.
 For example: Using `{{INPUT:YourName}}Hello {{OUTPUT:YourName}}` will first ask the user for a value, store it in `YourName` and then type it after the **Hello** part. You can use this many times,  and with any different variable names.
