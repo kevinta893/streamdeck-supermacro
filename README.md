@@ -94,6 +94,51 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
             <td>Numbers 0-9</td>
             <td>{VK_XXXX} (XXXX = the number - e.g. VK_0 / VK_1 ...)</td>
         </tr>
+		<tr>
+            <td>These characters:<br/><b>;/`[\]':?~{|}"</b></td>
+            <td>Exact command changes between keyboard layouts:<br/>Try the following macros to figure out the correct command:<br/> <b>{{oem_1}}{{oem_2}}{{oem_3}}{{oem_4}}{{oem_5}} {{oem_6}}{{oem_7}}{{oem_8}}
+			{{shift}{oem_1}}{{shift}{oem_2}}{{shift}{oem_3}} {{shift}{oem_4}}{{shift}{oem_5}} {{shift}{oem_6}}{{shift}{oem_7}}{{shift}{oem_8}}</b></td>
+        </tr>
+		        <tr>
+            <td>Numericpad 0</td>
+            <td>{NUMPAD0}</td>
+        </tr>
+        <tr>
+            <td>Numericpad 1</td>
+            <td>{NUMPAD1}</td>
+        </tr>
+        <tr>
+            <td>Numericpad 2</td>
+            <td>{NUMPAD2}</td>
+        </tr>
+        <tr>
+            <td>Numericpad 3</td>
+            <td>{NUMPAD3}</td>
+        </tr>
+        <tr>
+            <td>Numericpad 4</td>
+            <td>{NUMPAD4}</td>
+        </tr>
+        <tr>
+            <td>Numericpad 5</td>
+            <td>{NUMPAD5}</td>
+        </tr>
+        <tr>
+            <td>Numericpad 6</td>
+            <td>{NUMPAD6}</td>
+        </tr>
+        <tr>
+            <td>Numericpad 7</td>
+            <td>{NUMPAD7}</td>
+        </tr>
+        <tr>
+            <td>Numericpad 8</td>
+            <td>{NUMPAD8}</td>
+        </tr>
+        <tr>
+            <td>Numericpad 9</td>
+            <td>{NUMPAD9}</td>
+        </tr>
         <tr>
             <td>BACKSPACE</td>
             <td>{BACK}</td>
@@ -231,46 +276,6 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
             <td>{RWIN}</td>
         </tr>
         <tr>
-            <td>Numericpad 0</td>
-            <td>{NUMPAD0}</td>
-        </tr>
-        <tr>
-            <td>Numericpad 1</td>
-            <td>{NUMPAD1}</td>
-        </tr>
-        <tr>
-            <td>Numericpad 2</td>
-            <td>{NUMPAD2}</td>
-        </tr>
-        <tr>
-            <td>Numericpad 3</td>
-            <td>{NUMPAD3}</td>
-        </tr>
-        <tr>
-            <td>Numericpad 4</td>
-            <td>{NUMPAD4}</td>
-        </tr>
-        <tr>
-            <td>Numericpad 5</td>
-            <td>{NUMPAD5}</td>
-        </tr>
-        <tr>
-            <td>Numericpad 6</td>
-            <td>{NUMPAD6}</td>
-        </tr>
-        <tr>
-            <td>Numericpad 7</td>
-            <td>{NUMPAD7}</td>
-        </tr>
-        <tr>
-            <td>Numericpad 8</td>
-            <td>{NUMPAD8}</td>
-        </tr>
-        <tr>
-            <td>Numericpad 9</td>
-            <td>{NUMPAD9}</td>
-        </tr>
-        <tr>
             <td>F1</td>
             <td>{F1}</td>
         </tr>
@@ -366,11 +371,7 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
             <td>F24</td>
             <td>{F24}</td>
         </tr>
-		<tr>
-            <td>These characters:<br/><b>;/`[\]':?~{|}"</b></td>
-            <td>Exact command changes between keyboard layouts:<br/>Try the following macros to figure out the correct command:<br/> <b>{{oem_1}}{{oem_2}}{{oem_3}}{{oem_4}}{{oem_5}} {{oem_6}}{{oem_7}}{{oem_8}}
-			{{shift}{oem_1}}{{shift}{oem_2}}{{shift}{oem_3}} {{shift}{oem_4}}{{shift}{oem_5}} {{shift}{oem_6}}{{shift}{oem_7}}{{shift}{oem_8}}</b></td>
-        </tr>
+		
 		<tr>
             <td>Plus: +=</td>
             <td>{OEM_PLUS} / {{SHIFT}{OEM_PLUS}}</td>
