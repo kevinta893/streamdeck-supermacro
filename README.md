@@ -86,6 +86,14 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
             <th align="center">Keyboard Key</th>
             <th align="center">Macro Command</th>
         </tr>
+		<tr>
+            <td>Letters A-Z</td>
+            <td>{VK_XXXX} (XXXX = the letter - e.g. VK_A / VK_B ...)</td>
+        </tr>
+		<tr>
+            <td>Numbers 0-9</td>
+            <td>{VK_XXXX} (XXXX = the number - e.g. VK_0 / VK_1 ...)</td>
+        </tr>
         <tr>
             <td>BACKSPACE</td>
             <td>{BACK}</td>
