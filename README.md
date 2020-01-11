@@ -3,7 +3,7 @@
 **Author's website and contact information:** [https://barraider.github.io](https://barraider.github.io)
 
 ## New in v1.6
-- Marcos can now be loaded directly from a text file (instead of being edited in the Stream Deck App)
+- Macros can now be loaded directly from a text file (instead of being edited in the Stream Deck App)
     - Plugin will read the file on keypress to ensure the latest version of the macro is executed
 - New option to ignore "new line" in textbox and only react to `{{enter}}`. Allows you to write macros on multiple lines to make them more readable
 
