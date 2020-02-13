@@ -9,10 +9,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SuperMacro
+namespace SuperMacro.Actions
 {
     [PluginActionId("com.barraider.supermacrostickykeystroke")]
-    public class StickyKeypress : KeystrokeBase
+    public class StickyKeystrokeAction : KeystrokeBase
     {
         private class PluginSettings : PluginSettingsBase
         {
@@ -23,7 +23,8 @@ namespace SuperMacro
                     Command = String.Empty,
                     EnabledImageFilename = string.Empty,
                     DisabledImageFilename = string.Empty,
-                    ForcedKeydown = false
+                    ForcedKeydown = false,
+                    AutoStopNum = DEFAULT_AUTO_STOP_NUM.ToString()
                 };
                 return instance;
             }
@@ -55,15 +56,13 @@ namespace SuperMacro
         }
 
         #region Private Members
-
-        string enabledFile = null;
-        string disabledFile = null;
-
+        private string enabledFile = null;
+        private string disabledFile = null;
         #endregion
 
         #region Public Methods
 
-        public StickyKeypress(SDConnection connection, InitialPayload payload) : base(connection, payload)
+        public StickyKeystrokeAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
             if (payload.Settings == null || payload.Settings.Count == 0)
             {
@@ -75,6 +74,7 @@ namespace SuperMacro
                 Settings = payload.Settings.ToObject<PluginSettings>();
                 HandleFilenames();
             }
+            InitializeSettings();
         }
 
         public override void KeyPressed(KeyPayload payload)
@@ -96,6 +96,7 @@ namespace SuperMacro
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Settings loaded: {payload.Settings}");
             HandleFilenames();
             HandleKeystroke();
+            InitializeSettings();
         }
 
         public override void KeyReleased(KeyPayload payload) { }
@@ -138,6 +139,15 @@ namespace SuperMacro
             enabledFile = Tools.FileToBase64(Settings.EnabledImageFilename, true);
             disabledFile = Tools.FileToBase64(Settings.DisabledImageFilename, true);
             SaveSettings();
+        }
+
+        private void InitializeSettings()
+        {
+            if (!Int32.TryParse(Settings.AutoStopNum, out autoStopNum))
+            {
+                Settings.AutoStopNum = DEFAULT_AUTO_STOP_NUM.ToString();
+                SaveSettings();
+            }
         }
     }
 }

@@ -2,8 +2,25 @@
 
 **Author's website and contact information:** [https://barraider.github.io](https://barraider.github.io)
 
+## New in v1.7
+- :new: ***Loops Support!***
+	- *Sticky SuperMacro* and *Sticky Keystroke* both support loops! Use the `Auto Stop After N Rounds` to create loops which will run a customizable amount of times.
+- New Variable Commands! 
+	- {{VARSET}} - Use `{{VARSET:VarName:Value}}` to set the value `Value` into `VarName`. You can then use `{{OUTPUT:VarName}}` to display it
+	- {{VARSETFROMFILE}} - Use `{{VARSETFROMFILE:VarName:c:\myfile.txt}}` to read `myfile.txt` and store its contents into `VarName`. You can then use `{{OUTPUT:VarName}}` to display it
+	- {{VARUNSET}} - Use `{{VARUNSET:VarName}}` to clear `VarName`
+	- {{VARUNSETALL}} - Clears all variables. Usage: `{{VARUNSETALL}}`
+- Full support for Numpad buttons! Added a bunch of new commands to differentiate between Numpad buttons and their non-Numpad variation (Arrows, Home, End, ...). See full list below
+- Storing/Restore mouse position. Use `{{MSAVEPOS}}` to store the current mouse position. Later use `{{MLOADPOS}}` to move the mouse back to that position
+- Mouse Double-Clicks:
+	- Left Double Click now uses the `{{MLEFTDBLCLICK}}` command.
+	- Right Double Click now uses the `{{MRIGHTDBLCLICK}}` command.
+- `MouseXY` command which is superseding the `MousePos` command. Use it to move the mouse cursor to a specific place on your desktop. Use together with the new `Mouse Location` action in `Win Tools` to quickly determine the coordinates you want.
+- Support for mouse Button 4 and Button 5 - Use `{{XBUTTON1}}` for Button 4 click. Use `{{XBUTTON2}}` for Button 5 click.
+- New `Let macro complete on stop` option available for Sticky SuperMacro. Will ensure the macro completes fully when the button is pressed
+
 ## New in v1.6
-- Marcos can now be loaded directly from a text file (instead of being edited in the Stream Deck App)
+- Macros can now be loaded directly from a text file (instead of being edited in the Stream Deck App)
     - Plugin will read the file on keypress to ensure the latest version of the macro is executed
 - New option to ignore "new line" in textbox and only react to `{{enter}}`. Allows you to write macros on multiple lines to make them more readable
 
@@ -100,44 +117,64 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
 			{{shift}{oem_1}}{{shift}{oem_2}}{{shift}{oem_3}} {{shift}{oem_4}}{{shift}{oem_5}} {{shift}{oem_6}}{{shift}{oem_7}}{{shift}{oem_8}}</b></td>
         </tr>
 		<tr>
-            <td>Numericpad 0</td>
+            <td>Numpad 0</td>
             <td>{NUMPAD0}</td>
         </tr>
         <tr>
-            <td>Numericpad 1</td>
+            <td>Numpad 1</td>
             <td>{NUMPAD1}</td>
         </tr>
         <tr>
-            <td>Numericpad 2</td>
+            <td>Numpad 2</td>
             <td>{NUMPAD2}</td>
         </tr>
         <tr>
-            <td>Numericpad 3</td>
+            <td>Numpad 3</td>
             <td>{NUMPAD3}</td>
         </tr>
         <tr>
-            <td>Numericpad 4</td>
+            <td>Numpad 4</td>
             <td>{NUMPAD4}</td>
         </tr>
         <tr>
-            <td>Numericpad 5</td>
+            <td>Numpad 5</td>
             <td>{NUMPAD5}</td>
         </tr>
         <tr>
-            <td>Numericpad 6</td>
+            <td>Numpad 6</td>
             <td>{NUMPAD6}</td>
         </tr>
         <tr>
-            <td>Numericpad 7</td>
+            <td>Numpad 7</td>
             <td>{NUMPAD7}</td>
         </tr>
         <tr>
-            <td>Numericpad 8</td>
+            <td>Numpad 8</td>
             <td>{NUMPAD8}</td>
         </tr>
         <tr>
-            <td>Numericpad 9</td>
+            <td>Numpad 9</td>
             <td>{NUMPAD9}</td>
+        </tr>
+		<tr>
+            <td>Numpad *</td>
+            <td>{MULTIPLY}</td>
+        </tr>
+		<tr>
+            <td>Numpad +</td>
+            <td>{ADD}</td>
+        </tr>
+		<tr>
+            <td>Numpad -</td>
+            <td>{SUBTRACT}</td>
+        </tr>
+		<tr>
+            <td>Numpad .</td>
+            <td>{DECIMAL}</td>
+        </tr>
+		<tr>
+            <td>Numpad /</td>
+            <td>{DIVIDE}</td>
         </tr>
         <tr>
             <td>BACKSPACE</td>
@@ -209,35 +246,67 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
         </tr>
         <tr>
             <td>PAGE UP</td>
-            <td>{PAGEUP} or {PRIOR}</td>
+            <td>{PAGEUP} or {PGUP} or {PRIOR}</td>
+        </tr>
+		<tr>
+            <td>Numpad PAGE UP</td>
+            <td>{NUMPAD_PAGEUP}</td>
         </tr>
         <tr>
             <td>PAGE DOWN</td>
-            <td>{PAGEDOWN} or {NEXT}</td>
+            <td>{PAGEDOWN} or {PGDN} or {NEXT}</td>
         </tr>
-        <tr>
-            <td>END</td>
-            <td>{END}</td>
+		<tr>
+            <td>Numpad PAGE DOWN</td>
+            <td>{NUMPAD_PAGEDOWN}</td>
         </tr>
         <tr>
             <td>HOME</td>
             <td>{HOME}</td>
         </tr>
+		<tr>
+            <td>Numpad HOME</td>
+            <td>{NUMPAD_HOME}</td>
+        </tr>
+		<tr>
+            <td>END</td>
+            <td>{END}</td>
+        </tr>
+		<tr>
+            <td>Numpad END</td>
+            <td>{NUMPAD_END}</td>
+        </tr>
+		<tr>
+            <td>UP ARROW</td>
+            <td>{UP}</td>
+        </tr>
+		<tr>
+            <td>Numpad UP ARROW</td>
+            <td>{NUMPAD_UP}</td>
+        </tr>
         <tr>
             <td>LEFT ARROW</td>
             <td>{LEFT}</td>
         </tr>
-        <tr>
-            <td>UP ARROW</td>
-            <td>{UP}</td>
+         <tr>
+            <td>Numpad LEFT ARROW</td>
+            <td>{NUMPAD_LEFT}</td>
         </tr>
         <tr>
             <td>RIGHT ARROW</td>
             <td>{RIGHT}</td>
         </tr>
+		<tr>
+            <td>Numpad RIGHT ARROW</td>
+            <td>{NUMPAD_RIGHT}</td>
+        </tr>
         <tr>
             <td>DOWN ARROW</td>
             <td>{DOWN}</td>
+        </tr>
+		<tr>
+            <td>Numpad DOWN ARROW</td>
+            <td>{NUMPAD_DOWN}</td>
         </tr>
         <tr>
             <td>SELECT</td>
@@ -259,9 +328,17 @@ This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-
             <td>INS</td>
             <td>{INSERT}</td>
         </tr>
+		 <tr>
+            <td>Numpad INS</td>
+            <td>{NUMPAD_INSERT}</td>
+        </tr>
         <tr>
             <td>DEL</td>
             <td>{DELETE}</td>
+        </tr>
+		<tr>
+            <td>Numpad DEL</td>
+            <td>{NUMPAD_DEL}</td>
         </tr>
         <tr>
             <td>HELP</td>
@@ -423,6 +500,30 @@ Note: Use a `:` between the command name and the arguments
 			<td>Output</td>
 			<td>{Output:MyVar} Output the input previously gathered into 'MyVar'.</td>
 		</tr>
+		<tr>
+			<td>VarSet</td>
+			<td>{VarSet:MyVar:MyValue} set the value `MyValue` into `MyVar`.</td>
+		</tr>
+		<tr>
+			<td>VarSetFromFile</td>
+			<td>{VarSetFromFile:MyVar:C:\filename.txt} read the contents of the file specified and store into `MyVar`.</td>
+		</tr>
+		<tr>
+			<td>VarUnset</td>
+			<td>{VarUnset:MyVar} clears `MyVar`.</td>
+		</tr>
+		<tr>
+			<td>VarUnsetAll</td>
+			<td>{VARUNSETALL} clears all variables.</td>
+		</tr>
+		<tr>
+			<td>MSavePos</td>
+			<td>{MSAVEPOS} stores the current mouse cursor position.</td>
+		</tr>
+		<tr>
+			<td>MLoadPos</td>
+			<td>{MLOADPOS} moves the mouse to the previous set position (when `{MSAVEPOS}` was called).</td>
+		</tr>
 	</tbody>
 </table>
 
@@ -432,7 +533,7 @@ Note: Use a `:` between the command name and the arguments
 <table id="mouse" border="1">
     <tbody>
         <tr>
-            <th align="center">Keyboard Key</th>
+            <th align="center">Mouse Key</th>
             <th align="center">Macro Command</th>
         </tr>
 		<tr>
@@ -441,7 +542,7 @@ Note: Use a `:` between the command name and the arguments
         </tr>
 		<tr>
             <td>Mouse Left Double-Click</td>
-            <td>{XBUTTON1}</td>
+            <td>{MLEFTDBLCLICK}</td>
         </tr>
 		<tr>
             <td>Mouse Left Button Down</td>
@@ -457,7 +558,7 @@ Note: Use a `:` between the command name and the arguments
         </tr>
 		<tr>
             <td>Mouse Right Double-Click</td>
-            <td>{XBUTTON2}</td>
+            <td>{MRIGHTDBLCLICK}</td>
         </tr>
 		<tr>
             <td>Mouse Right Button Down</td>
@@ -480,6 +581,14 @@ Note: Use a `:` between the command name and the arguments
             <td>{MMIDDLEUP}</td>
         </tr>
 		<tr>
+            <td>Mouse Button 4 Click</td>
+            <td>{XBUTTON1}</td>
+        </tr>
+		<tr>
+            <td>Mouse Button 5 Click</td>
+            <td>{XBUTTON2}</td>
+        </tr>
+		<tr>
             <td>Mouse Scroll Wheel Up</td>
             <td>{MSCROLLUP}</td>
         </tr>
@@ -500,7 +609,11 @@ Note: Use a `:` between the command name and the arguments
             <td>{MOUSEMOVE:X,Y} (Move the cursor by X,Y from current position)</td>
         </tr>
 		<tr>
-            <td>Mouse Move: based on ABSOLUTE position </td>
+            <td>Mouse Move: based on multi-screen resolutions </td>
+            <td>{MOUSEXY:X,Y} (Move the cursor to the X,Y position on the screen. 0,0 is the [top-left] of your primary monitor. Supports both positive and negative values. Use along with the Mouse Location plugin in Win Tools to easily find the right coordinates on your PC</td>
+        </tr>
+		<tr>
+            <td>Mouse Move: based on ABSOLUTE position <b>(DEPRICATED)</b> </td>
             <td>{MOUSEPOS:X,Y} (Move the cursor to the X,Y position on the screen. Values from 0,0 [top-left] to 65535,65535 [bottom-right])</td>
         </tr>
   </tbody>

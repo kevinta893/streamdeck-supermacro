@@ -1,6 +1,7 @@
 ﻿using BarRaider.SdTools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SuperMacro.Backend;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,10 @@ using System.Threading.Tasks;
 using WindowsInput;
 using WindowsInput.Native;
 
-namespace SuperMacro
+namespace SuperMacro.Actions
 {
     [PluginActionId("com.barraider.supermacrostickymacro")]
-    public class SuperMacroSticky : SuperMacroBase
+    public class StickySuperMacroAction : SuperMacroBase
     {
         protected class PluginSettings : MacroSettingsBase
         {
@@ -32,6 +33,8 @@ namespace SuperMacro
                     DisabledImageFilename = string.Empty,
                     LoadFromFiles = false,
                     PrimaryInputFile = String.Empty,
+                    RunUntilEnd = false,
+                    AutoStopNum = DEFAULT_AUTO_STOP_NUM.ToString()
                 };
 
                 return instance;
@@ -44,9 +47,17 @@ namespace SuperMacro
             [FilenameProperty]
             [JsonProperty(PropertyName = "disabledImage")]
             public string DisabledImageFilename { get; set; }
+
+            [JsonProperty(PropertyName = "runUntilEnd")]
+            public bool RunUntilEnd { get; set; }
+
+            [JsonProperty(PropertyName = "autoStopNum")]
+            public string AutoStopNum { get; set; }
+            
         }
 
         #region Private members
+        private const int DEFAULT_AUTO_STOP_NUM = 0;
 
         protected PluginSettings Settings
         {
@@ -68,12 +79,13 @@ namespace SuperMacro
         private string enabledFile = null;
         private string disabledFile = null;
         private bool keyPressed = false;
+        private int autoStopNum = DEFAULT_AUTO_STOP_NUM;
 
         #endregion
 
         #region Public Methods
 
-        public SuperMacroSticky(SDConnection connection, InitialPayload payload) : base(connection, payload)
+        public StickySuperMacroAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
             if (payload.Settings == null || payload.Settings.Count == 0)
             {
@@ -86,6 +98,7 @@ namespace SuperMacro
                 HandleFilenames();
             }
             LoadMacros();
+            InitializeSettings();
         }
 
         public override void KeyPressed(KeyPayload payload)
@@ -143,6 +156,7 @@ namespace SuperMacro
             }
             HandleFilenames();
             LoadMacros();
+            InitializeSettings();
         }
 
         #endregion
@@ -178,11 +192,13 @@ namespace SuperMacro
                     text = text.Replace("\r\n", "\n");
                 }
 
+                bool isAutoStopMode = autoStopNum > 0;
+                int counter = autoStopNum;
                 while (keyPressed)
                 {
                     for (int idx = 0; idx < text.Length; idx++)
                     {
-                        if (!keyPressed) // Stop as soon as user presses button
+                        if (!keyPressed && !Settings.RunUntilEnd) // Stop as soon as user presses button
                         {
                             break;
                         }
@@ -203,7 +219,6 @@ namespace SuperMacro
                                 macro = macro.Substring(1, macro.Length - 2);
 
                                 HandleMacro(macro);
-
                             }
                         }
                         else
@@ -212,9 +227,27 @@ namespace SuperMacro
                         }
                         Thread.Sleep(Settings.Delay);
                     }
+                    if (isAutoStopMode)
+                    {
+                        counter--; // First decrease, then check if equals zero 
+                        if (counter <= 0)
+                        {
+                            keyPressed = false;
+                        }
+                    }
+
                 }
             });
             inputRunning = false;
+        }
+
+        private void InitializeSettings()
+        {
+            if (!Int32.TryParse(Settings.AutoStopNum, out autoStopNum))
+            {
+                Settings.AutoStopNum = DEFAULT_AUTO_STOP_NUM.ToString();
+                SaveSettings();
+            }
         }
 
         #endregion

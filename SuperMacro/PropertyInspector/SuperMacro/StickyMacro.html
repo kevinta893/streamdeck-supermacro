@@ -77,12 +77,29 @@
             </div>
         </div>
         <div type="checkbox" class="sdpi-item">
+            <div class="sdpi-item-label">Stopping</div>
+            <div class="sdpi-item-value">
+                <input id="runUntilEnd" type="checkbox" value="" class="sdProperty sdCheckbox" oninput="setSettings()">
+                <label for="runUntilEnd" class="sdpi-item-label"><span></span>Let macro complete on stop</label>
+            </div>
+        </div>
+        <div class="sdpi-item" id="dvAutoStop">
+            <div class="sdpi-item-label">Auto Stop after N rounds</div>
+            <input class="sdpi-item-value sdProperty" placeholder="0" value="" pattern="^[0-9]*$" id="autoStopNum" oninput="setSettings()">
+        </div>
+        <div type="range" class="sdpi-item">
+            <details class="message info">
+                <summary>Setting to 0 will continue to run until key-press</summary>
+            </details>
+        </div>
+        <div type="checkbox" class="sdpi-item">
             <div class="sdpi-item-label">New Line</div>
             <div class="sdpi-item-value">
                 <input id="ignoreNewline" type="checkbox" value="" class="sdProperty sdCheckbox" oninput="setSettings()">
                 <label for="ignoreNewline" class="sdpi-item-label"><span></span>Don't treat "New Line" as Enter</label>
             </div>
         </div>
+
         <div class="sdpi-item" id="dvKeyImage">
             <div class="sdpi-item-label">Enabled Image</div>
             <div class="sdpi-item-group file" id="filepickergroup">

@@ -1,5 +1,6 @@
 ﻿using BarRaider.SdTools;
 using Newtonsoft.Json.Linq;
+using SuperMacro.Backend;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 using WindowsInput;
 using WindowsInput.Native;
 
-namespace SuperMacro
+namespace SuperMacro.Actions
 {
     public abstract class SuperMacroBase : PluginBase
     {
@@ -136,13 +137,11 @@ namespace SuperMacro
         {
             if (settings.ForcedMacro)
             {
-                Logger.Instance.LogMessage(TracingLevel.INFO, $"{this.GetType()} InputChar ForcedMacro");
                 VirtualKeyCode vk = VirtualKeyCode.LBUTTON;
                 iis.Keyboard.KeyPress(vk.FromChar(c));
             }
             else
             {
-                Logger.Instance.LogMessage(TracingLevel.INFO, $"{this.GetType()} InputChar TextEntry");
                 iis.Keyboard.TextEntry(c);
             }
         }

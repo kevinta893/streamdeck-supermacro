@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WindowsInput.Native;
 
-namespace SuperMacro
+namespace SuperMacro.Backend
 {
     internal static class CommandTools
     {
@@ -53,10 +53,11 @@ namespace SuperMacro
                 MatchCollection matches = Regex.Matches(macroText, CommandTools.REGEX_SUB_COMMAND);
                 foreach (var match in matches)
                 {
-                    string matchText = match.ToString().ToUpperInvariant().Replace("{", "").Replace("}", "");
+                    string matchText = match.ToString().Replace("{", "").Replace("}", "");
                     if (matchText.Length == 1)
                     {
-                        keyStrokes.Add(new VirtualKeyCodeContainer((VirtualKeyCode)matchText[0]));
+                        char code = matchText.ToUpperInvariant()[0];
+                        keyStrokes.Add(new VirtualKeyCodeContainer((VirtualKeyCode)code));
                     }
                     else
                     {
@@ -79,13 +80,13 @@ namespace SuperMacro
         private static VirtualKeyCodeContainer MacroTextToKeyCode(string macroText)
         {
             try
-            {
-                string text = ConvertSimilarMacroCommands(macroText);
-                if (ExtendedMacroHandler.IsExtendedMacro(text, out string macroCommand, out string extendedData))
+            {  
+                if (ExtendedMacroHandler.IsExtendedMacro(macroText, out string macroCommand, out string extendedData))
                 {
                     return new VirtualKeyCodeContainer(VirtualKeyCode.ZOOM, macroCommand, extendedData);
                 }
 
+                string text = ConvertSimilarMacroCommands(macroText.ToUpperInvariant());
                 VirtualKeyCode keyCode = (VirtualKeyCode)Enum.Parse(typeof(VirtualKeyCode), text, true);
                 return new VirtualKeyCodeContainer(keyCode);
             }
@@ -121,8 +122,10 @@ namespace SuperMacro
                 case "WINDOWS":
                     return "LWIN";
                 case "PAGEUP":
+                case "PGUP":
                     return "PRIOR";
                 case "PAGEDOWN":
+                case "PGDN":
                     return "NEXT";
                 case "BREAK":
                     return "PAUSE";

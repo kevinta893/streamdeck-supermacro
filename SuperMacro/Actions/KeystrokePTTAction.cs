@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 using WindowsInput;
 using WindowsInput.Native;
 
-namespace SuperMacro
+namespace SuperMacro.Actions
 {
     [PluginActionId("com.barraider.keystrokeptt")]
-    public class KeystrokePTT : KeystrokeBase
+    public class KeystrokePTTAction : KeystrokeBase
     {
         private class PluginSettings : PluginSettingsBase
         {
@@ -46,7 +46,7 @@ namespace SuperMacro
 
         #region Public Methods
 
-        public KeystrokePTT(SDConnection connection, InitialPayload payload) : base(connection, payload)
+        public KeystrokePTTAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
             if (payload.Settings == null || payload.Settings.Count == 0)
             {

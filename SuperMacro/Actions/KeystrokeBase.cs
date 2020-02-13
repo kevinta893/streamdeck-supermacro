@@ -1,6 +1,7 @@
 ﻿using BarRaider.SdTools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SuperMacro.Backend;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 using WindowsInput;
 using WindowsInput.Native;
 
-namespace SuperMacro
+namespace SuperMacro.Actions
 {
     public abstract class KeystrokeBase : PluginBase
     {
@@ -21,12 +22,18 @@ namespace SuperMacro
 
             [JsonProperty(PropertyName = "forcedKeydown")]
             public bool ForcedKeydown { get; set; }
+
+            [JsonProperty(PropertyName = "autoStopNum")]
+            public string AutoStopNum { get; set; }
         }
 
         #region Private Members
+        protected const int DEFAULT_AUTO_STOP_NUM = 0;
 
         private readonly InputSimulator iis = new InputSimulator();
 
+        protected int autoStopNum = DEFAULT_AUTO_STOP_NUM;
+        private int counter;
         #endregion
 
 
@@ -55,6 +62,7 @@ namespace SuperMacro
                     Logger.Instance.LogMessage(TracingLevel.WARN, $"Command not configured");
                     return;
                 }
+                counter = autoStopNum;
 
                 if (settings.Command.Length == 1)
                 {
@@ -142,6 +150,7 @@ namespace SuperMacro
                     iis.Keyboard.KeyDown(keyCode);
                 }
                 Thread.Sleep(30);
+                HandleAutoStop();
             }
             iis.Keyboard.KeyUp(keyCode); // Release key at the end
         }
@@ -164,6 +173,7 @@ namespace SuperMacro
                     iis.Keyboard.ModifiedKeyStroke(keyStrokes, keyCode);
                 }
                 Thread.Sleep(30);
+                HandleAutoStop();
             }
 
             if (settings.ForcedKeydown)
@@ -183,6 +193,7 @@ namespace SuperMacro
             {
                 ExtendedMacroHandler.HandleExtendedMacro(iis, keyCode);
                 Thread.Sleep(30);
+                HandleAutoStop();
             }
         }
 
@@ -193,7 +204,21 @@ namespace SuperMacro
             {
                 iis.Keyboard.TextEntry(character);
                 Thread.Sleep(30);
+                HandleAutoStop();
             }
+        }
+
+        private void HandleAutoStop()
+        {
+            if (autoStopNum > 0)
+            {
+                counter--;
+                if (counter <= 0)
+                {
+                    keyPressed = false;
+                }
+            }
+            
         }
 
         #endregion

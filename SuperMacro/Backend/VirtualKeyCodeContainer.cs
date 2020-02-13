@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WindowsInput.Native;
 
-namespace SuperMacro
+namespace SuperMacro.Backend
 {
     public class VirtualKeyCodeContainer
     {

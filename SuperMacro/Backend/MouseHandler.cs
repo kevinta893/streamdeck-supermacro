@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using WindowsInput;
 using WindowsInput.Native;
 
-namespace SuperMacro
+namespace SuperMacro.Backend
 {
     internal static class MouseHandler
     {
@@ -30,11 +30,11 @@ namespace SuperMacro
                     handled = true;
                     break;
                 case VirtualKeyCode.XBUTTON1:
-                    iis.Mouse.LeftButtonDoubleClick();
+                    iis.Mouse.XButtonClick(1);
                     handled = true;
                     break;
                 case VirtualKeyCode.XBUTTON2:
-                    iis.Mouse.RightButtonDoubleClick();
+                    iis.Mouse.XButtonClick(2);
                     handled = true;
                     break;
             }

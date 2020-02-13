@@ -70,28 +70,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandTools.cs" />
-    <Compile Include="ExtendedMacroHandler.cs" />
+    <Compile Include="Backend\CommandTools.cs" />
+    <Compile Include="Backend\ExtendedMacroHandler.cs" />
     <Compile Include="InputBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="KeystrokeBase.cs" />
-    <Compile Include="KeystrokePTT.cs" />
-    <Compile Include="MacroSettingsBase.cs" />
-    <Compile Include="MouseHandler.cs" />
+    <Compile Include="Actions\KeystrokeBase.cs" />
+    <Compile Include="Actions\KeystrokePTTAction.cs" />
+    <Compile Include="Actions\MacroSettingsBase.cs" />
+    <Compile Include="Backend\MouseHandler.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="StickyKeypress.cs" />
-    <Compile Include="SuperMacroSticky.cs" />
-    <Compile Include="SuperMacroBase.cs" />
-    <Compile Include="SuperMacroToggle.cs" />
-    <Compile Include="SuperMacro.cs" />
+    <Compile Include="Actions\StickyKeystrokeAction.cs" />
+    <Compile Include="Actions\StickySuperMacroAction.cs" />
+    <Compile Include="Actions\SuperMacroBase.cs" />
+    <Compile Include="Actions\ToggleSuperMacroAction.cs" />
+    <Compile Include="Actions\SuperMacroAction.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VirtualKeyCodeContainer.cs" />
+    <Compile Include="Backend\VirtualKeyCodeContainer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
