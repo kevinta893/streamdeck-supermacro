@@ -17,53 +17,13 @@ namespace SuperMacro.Actions
     [PluginActionId("com.barraider.supermacrostickymacro")]
     public class StickySuperMacroAction : SuperMacroBase
     {
-        protected class PluginSettings : MacroSettingsBase
-        {
-            public static PluginSettings CreateDefaultSettings()
-            {
-                PluginSettings instance = new PluginSettings
-                {
-                    InputText = String.Empty,
-                    Delay = 10,
-                    EnterMode = false,
-                    ForcedMacro = false,
-                    KeydownDelay = false,
-                    IgnoreNewline = false,
-                    EnabledImageFilename = string.Empty,
-                    DisabledImageFilename = string.Empty,
-                    LoadFromFiles = false,
-                    PrimaryInputFile = String.Empty,
-                    RunUntilEnd = false,
-                    AutoStopNum = DEFAULT_AUTO_STOP_NUM.ToString()
-                };
-
-                return instance;
-            }
-
-            [FilenameProperty]
-            [JsonProperty(PropertyName = "enabledImage")]
-            public string EnabledImageFilename { get; set; }
-
-            [FilenameProperty]
-            [JsonProperty(PropertyName = "disabledImage")]
-            public string DisabledImageFilename { get; set; }
-
-            [JsonProperty(PropertyName = "runUntilEnd")]
-            public bool RunUntilEnd { get; set; }
-
-            [JsonProperty(PropertyName = "autoStopNum")]
-            public string AutoStopNum { get; set; }
-            
-        }
-
         #region Private members
-        private const int DEFAULT_AUTO_STOP_NUM = 0;
 
-        protected PluginSettings Settings
+        protected StickyMacroSettings Settings
         {
             get
             {
-                var result = settings as PluginSettings;
+                var result = settings as StickyMacroSettings;
                 if (result == null)
                 {
                     Logger.Instance.LogMessage(TracingLevel.ERROR, "Cannot convert MacroSettingsBase to PluginSettings");
@@ -78,8 +38,7 @@ namespace SuperMacro.Actions
 
         private string enabledFile = null;
         private string disabledFile = null;
-        private bool keyPressed = false;
-        private int autoStopNum = DEFAULT_AUTO_STOP_NUM;
+        private int autoStopNum = StickyMacroSettings.DEFAULT_AUTO_STOP_NUM;
 
         #endregion
 
@@ -89,12 +48,12 @@ namespace SuperMacro.Actions
         {
             if (payload.Settings == null || payload.Settings.Count == 0)
             {
-                Settings = PluginSettings.CreateDefaultSettings();
+                Settings = StickyMacroSettings.CreateDefaultSettings();
                 Connection.SetSettingsAsync(JObject.FromObject(Settings));
             }
             else
             {
-                Settings = payload.Settings.ToObject<PluginSettings>();
+                Settings = payload.Settings.ToObject<StickyMacroSettings>();
                 HandleFilenames();
             }
             LoadMacros();
@@ -104,19 +63,19 @@ namespace SuperMacro.Actions
         public override void KeyPressed(KeyPayload payload)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Key Pressed {this.GetType()}");
-            keyPressed = !keyPressed;
-            if (keyPressed)
+            StickyEnabled = !StickyEnabled;
+            if (StickyEnabled)
             {
                 LoadMacros(); // Refresh the macros, relevant for if you're reading from a file
                 Logger.Instance.LogMessage(TracingLevel.INFO, $"Command Started");
-                SendStickyInput(primaryMacro);
+                SendStickyInput(primaryMacro, CreateWriterSettings());
             }
         }
 
         public async override void OnTick()
         {
             string imgBase64;
-            if (keyPressed)
+            if (StickyEnabled)
             {
                 imgBase64 = Properties.Settings.Default.StickyEnabled;
 
@@ -140,7 +99,7 @@ namespace SuperMacro.Actions
 
         public override void Dispose()
         {
-            keyPressed = false;
+            StickyEnabled = false;
             Logger.Instance.LogMessage(TracingLevel.INFO, "Destructor called");
         }
 
@@ -170,84 +129,18 @@ namespace SuperMacro.Actions
             Connection.SetSettingsAsync(JObject.FromObject(Settings));
         }
 
-        protected async void SendStickyInput(string inputText)
-        {
-            if (String.IsNullOrEmpty(inputText))
-            {
-                return;
-            }
-
-            inputRunning = true;
-            await Task.Run(() =>
-            {
-                InputSimulator iis = new InputSimulator();
-                string text = inputText;
-
-                if (settings.IgnoreNewline)
-                {
-                    text = text.Replace("\r\n", "\n").Replace("\n", "");
-                }
-                else if (Settings.EnterMode)
-                {
-                    text = text.Replace("\r\n", "\n");
-                }
-
-                bool isAutoStopMode = autoStopNum > 0;
-                int counter = autoStopNum;
-                while (keyPressed)
-                {
-                    for (int idx = 0; idx < text.Length; idx++)
-                    {
-                        if (!keyPressed && !Settings.RunUntilEnd) // Stop as soon as user presses button
-                        {
-                            break;
-                        }
-                        if (Settings.EnterMode && text[idx] == '\n')
-                        {
-                            iis.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.RETURN);
-                        }
-                        else if (text[idx] == CommandTools.MACRO_START_CHAR)
-                        {
-                            string macro = CommandTools.ExtractMacro(text, idx);
-                            if (String.IsNullOrWhiteSpace(macro)) // Not a macro, just input the character
-                            {
-                                iis.Keyboard.TextEntry(text[idx]);
-                            }
-                            else // This is a macro, run it
-                            {
-                                idx += macro.Length - 1;
-                                macro = macro.Substring(1, macro.Length - 2);
-
-                                HandleMacro(macro);
-                            }
-                        }
-                        else
-                        {
-                            iis.Keyboard.TextEntry(text[idx]);
-                        }
-                        Thread.Sleep(Settings.Delay);
-                    }
-                    if (isAutoStopMode)
-                    {
-                        counter--; // First decrease, then check if equals zero 
-                        if (counter <= 0)
-                        {
-                            keyPressed = false;
-                        }
-                    }
-
-                }
-            });
-            inputRunning = false;
-        }
-
         private void InitializeSettings()
         {
             if (!Int32.TryParse(Settings.AutoStopNum, out autoStopNum))
             {
-                Settings.AutoStopNum = DEFAULT_AUTO_STOP_NUM.ToString();
+                Settings.AutoStopNum = StickyMacroSettings.DEFAULT_AUTO_STOP_NUM.ToString();
                 SaveSettings();
             }
+        }
+
+        private WriterSettings CreateWriterSettings()
+        {
+            return new WriterSettings(settings.IgnoreNewline, settings.EnterMode, Settings.RunUntilEnd, settings.KeydownDelay, settings.ForcedMacro, settings.Delay, autoStopNum);
         }
 
         #endregion

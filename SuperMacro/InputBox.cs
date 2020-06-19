@@ -15,13 +15,14 @@ namespace SuperMacro
         private TextBox tbInput;
         private Button btnOk;
         private Button btnCancel;
-        public InputBox(string title = "", string description = "")
+        public InputBox(string title = "", string description = "", string defaultValue = "")
         {
             InitializeComponent();
             this.AcceptButton = btnOk;
             this.CancelButton = btnCancel;
             this.Text = title;
             this.lblDescription.Text = description;
+            this.tbInput.Text = defaultValue;
             btnOk.Click += BtnOk_Click;
             btnCancel.Click += BtnCancel_Click;
         }
@@ -31,6 +32,7 @@ namespace SuperMacro
             base.OnShown(e);
             this.Activate();
             this.Focus();
+            this.tbInput.SelectAll();
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)

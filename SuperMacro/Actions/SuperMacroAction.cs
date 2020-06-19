@@ -98,12 +98,10 @@ namespace SuperMacro.Actions
             longKeyPressed = false;
             keyPressStart = DateTime.Now;
 
-            if (inputRunning)
+            if (!InputRunning)
             {
-                forceStop = true;
-                return;
+                LoadMacros(); // Refresh the macros, relevant for if you're reading from a file
             }
-            LoadMacros(); // Refresh the macros, relevant for if you're reading from a file
         }
 
         public override void KeyReleased(KeyPayload payload)
@@ -112,8 +110,15 @@ namespace SuperMacro.Actions
             if (!longKeyPressed) // Take care of the short keypress
             {
                 Logger.Instance.LogMessage(TracingLevel.INFO, $"Short Keypress {this.GetType()}");
-                forceStop = false;
-                SendInput(primaryMacro);
+                if (InputRunning)
+                {
+                    ForceStop = true;
+                }
+                else
+                {
+                    ForceStop = false;
+                    SendInput(primaryMacro, CreateWriterSettings());
+                }
             }
         }
 
@@ -161,8 +166,8 @@ namespace SuperMacro.Actions
         {
             longKeyPressed = true;
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Long Keypress {this.GetType()}");
-            forceStop = false;
-            SendInput(secondaryMacro);
+            ForceStop = false;
+            SendInput(secondaryMacro, CreateWriterSettings());
             await Connection.ShowOk();
         }
 
@@ -185,6 +190,11 @@ namespace SuperMacro.Actions
             {
                 secondaryMacro = Settings.LongPressInputText;
             }
+        }
+
+        private WriterSettings CreateWriterSettings()
+        {
+            return new WriterSettings(settings.IgnoreNewline, settings.EnterMode, false, settings.KeydownDelay, settings.ForcedMacro, settings.Delay, 0);
         }
 
         #endregion

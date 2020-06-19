@@ -25,14 +25,19 @@ namespace SuperMacro.Actions
 
             [JsonProperty(PropertyName = "autoStopNum")]
             public string AutoStopNum { get; set; }
+
+            [JsonProperty(PropertyName = "delay")]
+            public string Delay { get; set; }
         }
 
         #region Private Members
         protected const int DEFAULT_AUTO_STOP_NUM = 0;
+        protected const int DEFAULT_DELAY_MS = 30;
 
         private readonly InputSimulator iis = new InputSimulator();
 
         protected int autoStopNum = DEFAULT_AUTO_STOP_NUM;
+        protected int delay = DEFAULT_DELAY_MS;
         private int counter;
         #endregion
 
@@ -40,6 +45,7 @@ namespace SuperMacro.Actions
         #region Protected Members
 
         protected bool keyPressed = false;
+        protected bool forceOneRound = false;
         protected PluginSettingsBase settings;
 
         #endregion
@@ -53,24 +59,24 @@ namespace SuperMacro.Actions
             return Connection.SetSettingsAsync(JObject.FromObject(settings));
         }
 
-        protected void RunCommand()
+        protected void RunCommand(string commandString)
         {
             try
             {
-                if (string.IsNullOrEmpty(settings.Command))
+                if (string.IsNullOrEmpty(commandString))
                 {
                     Logger.Instance.LogMessage(TracingLevel.WARN, $"Command not configured");
                     return;
                 }
                 counter = autoStopNum;
 
-                if (settings.Command.Length == 1)
+                if (commandString.Length == 1)
                 {
-                    Task.Run(() => SimulateTextEntry(settings.Command[0]));
+                    Task.Run(() => SimulateTextEntry(commandString[0]));
                 }
                 else // KeyStroke
                 {
-                    List<VirtualKeyCodeContainer> keyStrokes = CommandTools.ExtractKeyStrokes(settings.Command);
+                    List<VirtualKeyCodeContainer> keyStrokes = CommandTools.ExtractKeyStrokes(commandString);
 
                     // Actually initiate the keystrokes
                     if (keyStrokes.Count > 0)
@@ -102,31 +108,27 @@ namespace SuperMacro.Actions
             }
 }
 
-        protected void HandleKeystroke()
+        protected string ValidateKeystroke(string keystroke)
         {
-            if (String.IsNullOrEmpty(settings.Command))
+            if (String.IsNullOrEmpty(keystroke))
             {
-                return;
+                return keystroke;
             }
 
-            if (settings.Command.Length == 1) // 1 Character is fine
+            if (keystroke.Length == 1) // 1 Character is fine
             {
-                return;
+                return keystroke;
             }
 
-            string macro = CommandTools.ExtractMacro(settings.Command, 0);
+            string macro = CommandTools.ExtractMacro(keystroke, 0);
             if (string.IsNullOrEmpty(macro)) // Not a macro, save only first character
             {
-                settings.Command = settings.Command[0].ToString();
-                SaveSettings();
+                return keystroke[0].ToString();
             }
             else
             {
-                if (settings.Command != macro) // Save only one keystroke
-                {
-                    settings.Command = macro;
-                    SaveSettings();
-                }
+                // Only returns one macro if there is more than one
+                return macro;
             }
         }
 
@@ -140,16 +142,27 @@ namespace SuperMacro.Actions
 
         #region Private Methods
 
+        protected virtual void InitializeSettings()
+        {
+            settings.Command = ValidateKeystroke(settings.Command);
+            if (!Int32.TryParse(settings.Delay, out delay))
+            {
+                settings.Delay = DEFAULT_DELAY_MS.ToString();
+            }
+            SaveSettings();
+        }
+
         private void SimulateKeyDown(VirtualKeyCode keyCode)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"{this.GetType()} SimulateKeyDown");
-            while (keyPressed)
+            while (keyPressed || forceOneRound)
             {
+                forceOneRound = false;
                 if (!MouseHandler.HandleMouseMacro(iis, keyCode))
                 {
                     iis.Keyboard.KeyDown(keyCode);
                 }
-                Thread.Sleep(30);
+                Thread.Sleep(delay);
                 HandleAutoStop();
             }
             iis.Keyboard.KeyUp(keyCode); // Release key at the end
@@ -158,8 +171,9 @@ namespace SuperMacro.Actions
         private void SimulateKeyStroke(VirtualKeyCode[] keyStrokes, VirtualKeyCode keyCode)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"{this.GetType()} SimulateKeyStroke. ForcedKeyDown: {settings.ForcedKeydown}");
-            while (keyPressed)
+            while (keyPressed || forceOneRound)
             {
+                forceOneRound = false;
                 if (settings.ForcedKeydown)
                 {
                     foreach(var keystroke in keyStrokes)
@@ -172,7 +186,7 @@ namespace SuperMacro.Actions
                 {
                     iis.Keyboard.ModifiedKeyStroke(keyStrokes, keyCode);
                 }
-                Thread.Sleep(30);
+                Thread.Sleep(delay);
                 HandleAutoStop();
             }
 
@@ -189,10 +203,11 @@ namespace SuperMacro.Actions
         private void SimulateExtendedMacro(VirtualKeyCodeContainer keyCode)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"{this.GetType()} SimulateExtendedMacro");
-            while (keyPressed)
+            while (keyPressed || forceOneRound)
             {
-                ExtendedMacroHandler.HandleExtendedMacro(iis, keyCode);
-                Thread.Sleep(30);
+                forceOneRound = false;
+                ExtendedMacroHandler.HandleExtendedMacro(iis, keyCode, CreateWriterSettings(), null);
+                Thread.Sleep(delay);
                 HandleAutoStop();
             }
         }
@@ -200,10 +215,11 @@ namespace SuperMacro.Actions
         private void SimulateTextEntry(char character)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"{this.GetType()} SimulateTextEntry");
-            while (keyPressed)
+            while (keyPressed || forceOneRound)
             {
+                forceOneRound = false;
                 iis.Keyboard.TextEntry(character);
-                Thread.Sleep(30);
+                Thread.Sleep(delay);
                 HandleAutoStop();
             }
         }
@@ -217,9 +233,15 @@ namespace SuperMacro.Actions
                 {
                     keyPressed = false;
                 }
-            }
-            
+            }   
         }
+
+        private WriterSettings CreateWriterSettings()
+        {
+            return new WriterSettings(false, false, false, false, false, delay, autoStopNum);
+        }
+
+
 
         #endregion
     }

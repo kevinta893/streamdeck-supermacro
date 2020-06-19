@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SuperMacro.Backend;
+using SuperMacro.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +35,8 @@ namespace SuperMacro.Actions
                     IgnoreNewline = false,
                     LoadFromFiles = false,
                     PrimaryInputFile = String.Empty,
-                    SecondaryInputFile = String.Empty
+                    SecondaryInputFile = String.Empty,
+                    RememberState = false
                 };
 
                 return instance;
@@ -54,6 +56,9 @@ namespace SuperMacro.Actions
             [FilenameProperty]
             [JsonProperty(PropertyName = "secondaryImage")]
             public string SecondaryImageFilename { get; set; }
+
+            [JsonProperty(PropertyName = "rememberState")]
+            public bool RememberState { get; set; }           
         }
 
         protected PluginSettings Settings
@@ -79,6 +84,7 @@ namespace SuperMacro.Actions
         string secondaryFile = null;
         bool isPrimary = false;
         string secondaryMacro = String.Empty;
+        private GlobalSettings global;
 
         #endregion
 
@@ -96,28 +102,43 @@ namespace SuperMacro.Actions
                 Settings = payload.Settings.ToObject<PluginSettings>();
                 HandleFilenames();
             }
-            LoadMacros();
+            Connection.OnSendToPlugin += Connection_OnSendToPlugin;
+            Connection.GetGlobalSettingsAsync();
+            LoadMacros();          
         }
 
-        public override void KeyPressed(KeyPayload payload)
+        public async override void KeyPressed(KeyPayload payload)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Key Pressed {this.GetType()}");
-            if (inputRunning)
+            if (InputRunning)
             {
-                forceStop = true;
+                ForceStop = true;
                 return;
             }
 
             LoadMacros(); // Refresh the macros, relevant for if you're reading from a file
-            forceStop = false;
+            ForceStop = false;
             isPrimary = !isPrimary;
             string text = isPrimary ? primaryMacro : secondaryMacro;
-            SendInput(text);
+            await SaveToggleState();
+            SendInput(text, CreateWriterSettings());
         }
 
         public override void Dispose()
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, "Destructor called");
+            Connection.OnSendToPlugin -= Connection_OnSendToPlugin;
+        }
+
+        public override void ReceivedGlobalSettings(ReceivedGlobalSettingsPayload payload)
+        {
+            if (payload?.Settings != null && payload.Settings.Count > 0)
+            {
+                global = payload.Settings.ToObject<GlobalSettings>();
+                LoadToggleState();
+            }
+
+            base.ReceivedGlobalSettings(payload);
         }
 
         public async override void OnTick()
@@ -183,6 +204,69 @@ namespace SuperMacro.Actions
             {
                 secondaryMacro = Settings.SecondaryText;
             }
+        }
+
+        private void LoadToggleState()
+        {
+            if (!Settings.RememberState)
+            {
+                return;
+            }
+
+            if (global != null && global.DictToggleStates != null && global.DictToggleStates.ContainsKey(Connection.ContextId))
+            {
+                Logger.Instance.LogMessage(TracingLevel.INFO, $"Global Setting DictToggleStates has {global.DictToggleStates.Keys.Count} entries");
+                isPrimary = global.DictToggleStates[Connection.ContextId];
+            }
+        }
+
+        private async Task SaveToggleState()
+        {
+            if (!Settings.RememberState)
+            {
+                return;
+            }
+
+            if (global == null)
+            {
+                Logger.Instance.LogMessage(TracingLevel.WARN, $"SaveToggleState - global is null, creating new object");
+                global = new GlobalSettings();
+            }
+
+            if (global.DictToggleStates == null)
+            {
+                global.DictToggleStates = new Dictionary<string, bool>();
+            }
+
+            global.DictToggleStates[Connection.ContextId] = isPrimary;
+            await Connection.SetGlobalSettingsAsync(JObject.FromObject(global));
+        }
+
+        private async void Connection_OnSendToPlugin(object sender, BarRaider.SdTools.Wrappers.SDEventReceivedEventArgs<BarRaider.SdTools.Events.SendToPlugin> e)
+        {
+            var payload = e.Event.Payload;
+
+            Logger.Instance.LogMessage(TracingLevel.INFO, "OnSendToPlugin called");
+            if (payload["property_inspector"] != null)
+            {
+                switch (payload["property_inspector"].ToString().ToLowerInvariant())
+                {
+                    case "resetstate":
+                        isPrimary = false;
+                        await SaveToggleState();
+                        break;
+                    case "resetallstates":
+                        global = null;
+                        isPrimary = false;
+                        await SaveToggleState();
+                        break;
+                }
+            }
+        }
+
+        private WriterSettings CreateWriterSettings()
+        {
+            return new WriterSettings(settings.IgnoreNewline, settings.EnterMode, false, settings.KeydownDelay, settings.ForcedMacro, settings.Delay, 0);
         }
 
         #endregion

@@ -1,34 +1,38 @@
 # SuperMacro - Advanced keystroke macros triggered by the Elgato Stream Deck
 
-**Author's website and contact information:** [https://barraider.github.io](https://barraider.github.io)
+**Author's website and contact information:** [https://barraider.com](https://barraider.com)
+
+## New in v1.8
+- :new: ***FUNCTIONS Support!*** 
+	- `RANDOM` function allows choosing a random number in a customized range
+	- `ADD/SUB/MUL/DIV` allow to Add, Subtract, Multiply and Divide numbers
+	- `CONCAT` function allows to concatenate multiple strings/variables into one
+- Comments support: Type `{{//}}` and everything after it will be ignored, until the end of the line.
+- New `{{SetKeyTitle}} ` command to dynamically change the title of the Stream Deck button. See {{SETKEYTITLE}} command below.
+- New `{{OutputToFile}} ` command to store contents of a variable to file. See {{OUTPUTTOFILE}} command below.
+- New `{{VarSetFromClipboard}} ` command to set a variable with the clipboard contents. See {{VARSETFROMCLIPBOARD}} command below.
+- New `Mouse Location` action shows you the current mouse coordinates, to be used with the MouseXY command.
+- `SuperMacro Toggle` can now be set to remember the toggle state even when switching profiles or restarting the Stream Deck :pogchamp:
+- `SuperMacro PTT` action now supports sending a specific keystroke when key is released
+- `SuperMacro PTT` and `StickyKeypress` action now support a customizable delay (pause) between every execution.
+- {{INPUT}} Command now remembers the previous value and autofills it in the popup window
 
 ## New in v1.7
 - :new: ***Loops Support!***
 	- *Sticky SuperMacro* and *Sticky Keystroke* both support loops! Use the `Auto Stop After N Rounds` to create loops which will run a customizable amount of times.
 - New Variable Commands! 
-	- {{VARSET}} - Use `{{VARSET:VarName:Value}}` to set the value `Value` into `VarName`. You can then use `{{OUTPUT:VarName}}` to display it
-	- {{VARSETFROMFILE}} - Use `{{VARSETFROMFILE:VarName:c:\myfile.txt}}` to read `myfile.txt` and store its contents into `VarName`. You can then use `{{OUTPUT:VarName}}` to display it
-	- {{VARUNSET}} - Use `{{VARUNSET:VarName}}` to clear `VarName`
-	- {{VARUNSETALL}} - Clears all variables. Usage: `{{VARUNSETALL}}`
+	- {{VarSet}} - Use `{{VARSET:VarName:Value}}` to set the value `Value` into `VarName`. You can then use `{{OUTPUT:VarName}}` to display it
+	- {{VarSetFromFile}} - Use `{{VARSETFROMFILE:VarName:c:\myfile.txt}}` to read `myfile.txt` and store its contents into `VarName`. You can then use `{{OUTPUT:VarName}}` to display it
+	- {{VarUnset}} - Use `{{VARUNSET:VarName}}` to clear `VarName`
+	- {{VarUnsetAll}} - Clears all variables. Usage: `{{VARUNSETALL}}`
 - Full support for Numpad buttons! Added a bunch of new commands to differentiate between Numpad buttons and their non-Numpad variation (Arrows, Home, End, ...). See full list below
 - Storing/Restore mouse position. Use `{{MSAVEPOS}}` to store the current mouse position. Later use `{{MLOADPOS}}` to move the mouse back to that position
 - Mouse Double-Clicks:
 	- Left Double Click now uses the `{{MLEFTDBLCLICK}}` command.
 	- Right Double Click now uses the `{{MRIGHTDBLCLICK}}` command.
-- `MouseXY` command which is superseding the `MousePos` command. Use it to move the mouse cursor to a specific place on your desktop. Use together with the new `Mouse Location` action in `Win Tools` to quickly determine the coordinates you want.
+- `MouseXY` command which is superseding the `MousePos` command. Use it to move the mouse cursor to a specific place on your desktop. Use together with the new `Mouse Location` action to quickly determine the coordinates you want.
 - Support for mouse Button 4 and Button 5 - Use `{{XBUTTON1}}` for Button 4 click. Use `{{XBUTTON2}}` for Button 5 click.
 - New `Let macro complete on stop` option available for Sticky SuperMacro. Will ensure the macro completes fully when the button is pressed
-
-## New in v1.6
-- Macros can now be loaded directly from a text file (instead of being edited in the Stream Deck App)
-    - Plugin will read the file on keypress to ensure the latest version of the macro is executed
-- New option to ignore "new line" in textbox and only react to `{{enter}}`. Allows you to write macros on multiple lines to make them more readable
-
-## New in v1.5
-- The long awaited ***Variable support*** has now arrived!!!
-:new: You can now get input from the user and store it in variables.
-For example: Using `{{INPUT:YourName}}Hello {{OUTPUT:YourName}}` will first ask the user for a value, store it in `YourName` and then type it after the **Hello** part. You can use this many times,  and with any different variable names.
-- SuperMacro now supports putting a `:` between the command name and value, which allows better readability of your macros. You can now type `{{PAUSE:1000}}`, `{{KEYDOWN:SHIFT}}`,`{{MOUSEMOVE:1,1}}` etc.
 
 ## Current functionality
 ### 5 Plugins built into one:
@@ -69,31 +73,80 @@ Note: Delay should be ~20 ms
 ```
 {{win}{r}}{{pause:300}}calc{{enter}}{{pause:1000}}1*2*3*4*5=
 ```
-4. Move the mouse to a certain position on the screen
+4. Move the mouse to a certain position on the screen, then press Double-Click left mouse button.  
+Note: To find the correct position you can use the Mouse Location action.
 ```
-{{MOUSEPOS:40000,15000}}
+{{MOUSEXY:1000,15}}{{MLEFTDBLCLICK}}
 ```
 5. Move the mouse by 10 pixels left and 20 pixels down on every press
 ```
 {{MOUSEMOVE:-10,20}}
 ```
-6. Get input from user and then use it later on.
+6. Variables: Get input from user and then use it later on.
 ```
 {{INPUT:Name}}Hello {{OUTPUT:Name}}, Nice to meet you!
 ```
 
+7. Variables: Read text from file into MyVar variable
+```
+{{VarSetFromFile:MyVar:C:\filename.txt}}
+```
 
-## Download
-https://github.com/BarRaider/streamdeck-supermacro/releases
+8. Functions: Choose a random number between 1 (inclusive) to 10 (exclusive) and store it in MyVar:
+```
+{{FUNC:RANDOM:MyVar:1:10}}
+```
+
+9. Functions: Input 2 numbers from the user. Choose a random number between firstNum variable (inclusive) to secondNum variable (exclusive) and store it in MyVar:
+```
+{{INPUT:firstNum}}
+{{INPUT:secondNum}}
+{{FUNC:RANDOM:MyVar:$firstNum:$secondNum}}
+```
+
+10. Functions: Select a number from the user and multiply it by 10. Then save it to a file named c:\temp\result.txt:  
+```
+{{INPUT:myNumber}}
+{{FUNC:MUL:MyResult:$myNumber:10}}
+{{OUTPUTTOFILE:MyResult:c:\temp\result.txt}}
+```
+
+11. Add comments in the code using `{{//}}` command
+```
+{{INPUT:myNumber}} {{//}} Input a number from the user
+{{FUNC:MUL:MyResult:$myNumber:10}} {{//}} Multiply number by 10
+{{OUTPUTTOFILE:MyResult:c:\temp\result.txt}} {{//}} Save result in file
+```
+
+12. Read text from a file and show it on the Stream Deck Key:
+```
+{{VARSETFROMFILE:MyVar:c:\counter.txt}}
+{{SETKEYTITLE:$MyVar}}
+```
+
+12. Read text from a clipboard and show it on the Stream Deck Key:
+```
+{{VARSETFROMCLIPBOARD:MyVar}}
+{{SETKEYTITLE:$MyVar}}
+```
+
+*** More commands below ***
+
+
+### Download
+
+* [Download plugin](https://github.com/BarRaider/streamdeck-supermacro/releases/)
 
 ## I found a bug, who do I contact?
-For support please contact the developer. Contact information is available at https://barraider.github.io
+For support please contact the developer. Contact information is available at https://barraider.com
 
 ## I have a feature request, who do I contact?
-Please contact the developer. Contact information is available at https://barraider.github.io
+Please contact the developer. Contact information is available at https://barraider.com
 
 ## Dependencies
-This plugin uses the [StreamDeck-Tools](https://github.com/BarRaider/streamdeck-tools) v2.0
+* Uses StreamDeck-Tools by BarRaider: [![NuGet](https://img.shields.io/nuget/v/streamdeck-tools.svg?style=flat)](https://www.nuget.org/packages/streamdeck-tools)
+* Uses [Easy-PI](https://github.com/BarRaider/streamdeck-easypi) by BarRaider - Provides seamless integration with the Stream Deck PI (Property Inspector) 
+
 
 ## List of supported keystroke commands
 
@@ -481,6 +534,10 @@ Note: Use a `:` between the command name and the arguments
 <table id="advanced" border="1">
     <tbody>
 		<tr>
+            <td>{{//}}</td>
+            <td><b>Comments Support</b>: Anything after the {{//}} sign will be ignored until end of line.</td>
+        </tr>
+		<tr>
             <td>PAUSE</td>
             <td>{PAUSE:XXXX} (XXXX = length in miliseconds)</td>
         </tr>
@@ -505,8 +562,16 @@ Note: Use a `:` between the command name and the arguments
 			<td>{VarSet:MyVar:MyValue} set the value `MyValue` into `MyVar`.</td>
 		</tr>
 		<tr>
+			<td>OutputToFile</td>
+			<td>{OutputToFile:MyVar:C:\filename.txt} write the contents of the `MyVar` variable into `c:\filename.txt` file.</td>
+		</tr>
+		<tr>
 			<td>VarSetFromFile</td>
 			<td>{VarSetFromFile:MyVar:C:\filename.txt} read the contents of the file specified and store into `MyVar`.</td>
+		</tr>
+		<tr>
+			<td>VarSetFromClipboard</td>
+			<td>{VarSetFromClipboard:MyVar} read the contents of the clipboard and store into `MyVar`.</td>
 		</tr>
 		<tr>
 			<td>VarUnset</td>
@@ -524,6 +589,80 @@ Note: Use a `:` between the command name and the arguments
 			<td>MLoadPos</td>
 			<td>{MLOADPOS} moves the mouse to the previous set position (when `{MSAVEPOS}` was called).</td>
 		</tr>
+		<tr>
+			<td>SetKeyTitle</td>
+			<td>{SetKeyTitle:$MyVar} Sets the text on the Stream Deck key to the contents of `MyVar`.</td>
+		</tr>
+	</tbody>
+</table>
+
+## Functions
+### Syntax: 
+```
+{{FUNC:NameOfFunction:OutputVariable:InputParam1:InputParam2:InputParam3...}}
+
+Where 'InputParamX' can either be text (10) or another variable ($MyVar)
+```
+
+<table id="functions" border="1">
+    <tbody>
+        <tr>
+            <th align="center">Function Name</th>
+            <th align="center">Number of Input variables</th>
+			<th align="center">Example</th>
+			<th align="center">Comments</th>
+        </tr>
+		<tr>
+            <td>ADD</td>
+            <td>2</td>
+			<td>{{FUNC:ADD:MyVar:10:20}} (10+20 and store in MyVar)<br/>
+			{{FUNC:ADD:Var1:10:$Var2}} (Add 10 to Var2 and store in Var1)<br/>
+			{{FUNC:ADD:Result:$Var1:$Var2}} (Sum Var1 and Var2 and store in Result)</td>
+        </tr>
+		<tr>
+            <td>SUB</td>
+            <td>2</td>
+			<td>{{FUNC:ADD:MyVar:20:10}} (20-10 and store in MyVar)
+			</td>
+			<td>
+			<i>(Additional examples similar to ADD above)</i>
+			</td>
+        </tr>
+		<tr>
+            <td>MUL</td>
+            <td>2</td>
+			<td>{{FUNC:MUL:MyVar:10:20}} (10*20 and store in MyVar)
+			</td>
+			<td>
+			<i>(Additional examples similar to ADD above)</i></td>
+        </tr>
+		<tr>
+            <td>DIV</td>
+            <td>2</td>
+			<td>{{FUNC:DIV:MyVar:100:50}} (100/50 and store in MyVar).
+			</td>
+			<td>
+			<i>(Additional examples similar to ADD above)</i></td>
+        </tr>
+		<tr>
+            <td>RANDOM</td>
+            <td>2</td>
+			<td>{{FUNC:RANDOM:MyVar:1:20}} (Find a random number between 1 (inclusive) and 20 (exclusive) and store in MyVar.<br/>
+			{{FUNC:RANDOM:MyVar:$FirstVal:$SecondVal}} (Find a random number between FirstVal variable (inclusive) and SecondVal variable (exclusive) and store in MyVar.<br/>
+			</td>
+			<td>
+			<b>Note:</b> First value must be LOWER than Second value.</td>
+        </tr>
+		<tr>
+            <td>CONCAT</td>
+            <td>Unlimited</td>
+			<td>{{FUNC:CONCAT:MyVar:Hello:World:$Var1:Hi:$Var2}}<br/>
+			MyVar will have the string: <b>HelloWorldXXXXHiYYYY</b>
+			Where XXXX is the contents of Var1 and YYYY is the contents of Var2
+			</td>
+			<td>
+			</td>
+        </tr>
 	</tbody>
 </table>
 
@@ -605,15 +744,15 @@ Note: Use a `:` between the command name and the arguments
             <td>{MSCROLLRIGHT}</td>
         </tr>
 		<tr>
-            <td>Mouse Move: Based on CURRENT position</td>
+            <td>Mouse Move based on CURRENT position</td>
             <td>{MOUSEMOVE:X,Y} (Move the cursor by X,Y from current position)</td>
         </tr>
 		<tr>
-            <td>Mouse Move: based on multi-screen resolutions </td>
-            <td>{MOUSEXY:X,Y} (Move the cursor to the X,Y position on the screen. 0,0 is the [top-left] of your primary monitor. Supports both positive and negative values. Use along with the Mouse Location plugin in Win Tools to easily find the right coordinates on your PC</td>
+            <td>Mouse Move based on multi-screen resolutions </td>
+            <td>{MOUSEXY:X,Y} (Move the cursor to the X,Y position on the screen. 0,0 is the [top-left] of your primary monitor. Supports both positive and negative values. Use along with the Mouse Location action to easily find the right coordinates on your PC</td>
         </tr>
 		<tr>
-            <td>Mouse Move: based on ABSOLUTE position <b>(DEPRICATED)</b> </td>
+            <td><b>(DEPRICATED)</b> Mouse Move based on ABSOLUTE position <b>(DEPRICATED)</b> </td>
             <td>{MOUSEPOS:X,Y} (Move the cursor to the X,Y position on the screen. Values from 0,0 [top-left] to 65535,65535 [bottom-right])</td>
         </tr>
   </tbody>

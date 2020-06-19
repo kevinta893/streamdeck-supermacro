@@ -21,10 +21,14 @@ namespace SuperMacro.Actions
             {
                 PluginSettings instance = new PluginSettings
                 {
-                    Command = String.Empty
+                    Command = String.Empty,
+                    ReleaseCommand = String.Empty
                 };
                 return instance;
             }
+
+            [JsonProperty(PropertyName = "releaseCommand")]
+            public string ReleaseCommand { get; set; }
         }
 
         private PluginSettings Settings
@@ -57,27 +61,39 @@ namespace SuperMacro.Actions
             {
                 this.settings = payload.Settings.ToObject<PluginSettings>();
             }
+            InitializeSettings();
         }
 
         public override void KeyPressed(KeyPayload payload)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Key Pressed {this.GetType()}");
+            forceOneRound = false;
             keyPressed = true;
-            RunCommand();
+            RunCommand(Settings.Command);
         }
 
         public override void KeyReleased(KeyPayload payload)
         {
             keyPressed = false;
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Key Released {this.GetType()}");
+
+            if (!String.IsNullOrEmpty(Settings.ReleaseCommand))
+            {
+                Task.Run(async () =>
+                {
+                    await Task.Delay(delay);
+                    forceOneRound = true;
+                    RunCommand(Settings.ReleaseCommand);
+                });
+            }
         }
 
         public override void ReceivedSettings(ReceivedSettingsPayload payload)
         {
             // New in StreamDeck-Tools v2.0:
-            Tools.AutoPopulateSettings(settings, payload.Settings);
+            Tools.AutoPopulateSettings(Settings, payload.Settings);
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Settings loaded: {payload.Settings}");
-            HandleKeystroke();
+            InitializeSettings();
         }
 
         public override void ReceivedGlobalSettings(ReceivedGlobalSettingsPayload payload) { }
@@ -88,6 +104,13 @@ namespace SuperMacro.Actions
         {
             return Connection.SetSettingsAsync(JObject.FromObject(Settings));
         }
+
+        protected override void InitializeSettings()
+        {
+            Settings.ReleaseCommand = ValidateKeystroke(Settings.ReleaseCommand);
+            base.InitializeSettings();
+        }
+
 
         #endregion
     }

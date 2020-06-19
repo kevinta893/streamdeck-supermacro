@@ -85,7 +85,7 @@ namespace SuperMacro.Actions
             if (keyPressed)
             {
                 Logger.Instance.LogMessage(TracingLevel.INFO, $"Command Started");
-                RunCommand();
+                RunCommand(Settings.Command);
             }
         }
 
@@ -95,7 +95,6 @@ namespace SuperMacro.Actions
             Tools.AutoPopulateSettings(Settings, payload.Settings);
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Settings loaded: {payload.Settings}");
             HandleFilenames();
-            HandleKeystroke();
             InitializeSettings();
         }
 
@@ -141,13 +140,13 @@ namespace SuperMacro.Actions
             SaveSettings();
         }
 
-        private void InitializeSettings()
+        protected override void InitializeSettings()
         {
             if (!Int32.TryParse(Settings.AutoStopNum, out autoStopNum))
             {
                 Settings.AutoStopNum = DEFAULT_AUTO_STOP_NUM.ToString();
-                SaveSettings();
             }
+            base.InitializeSettings();
         }
     }
 }

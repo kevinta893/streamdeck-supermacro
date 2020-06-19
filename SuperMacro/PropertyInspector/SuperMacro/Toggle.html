@@ -8,10 +8,13 @@
     <title>BarRaider's SuperMacro</title>
     <link rel="stylesheet" href="../sdpi.css">
     <link rel="stylesheet" href="../jquery.highlight-within-textarea.css">
-    <script src="../sdtools.common.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/barraider/streamdeck-easypi@master/src/rangeTooltip.css">
+    <script src="https://cdn.jsdelivr.net/gh/barraider/streamdeck-easypi@latest/src/sdtools.common.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/barraider/streamdeck-easypi@master/src/rangeTooltip.js"></script>
     <script src="../jquery-3.3.1.min.js"></script>
     <script src="../jquery.highlight-within-textarea.js"></script>
-    <script src="../ShowDelayMs.js"></script>
+    <script src="../SuperMacro.js"></script>
+    <script src="../Toggle.js"></script>
 </head>
 <body>
     <div class="sdpi-wrapper">
@@ -88,17 +91,19 @@
                 <label class="sdpi-file-label" for="secondaryImage">Choose file...</label>
             </div>
         </div>
-        <div type="range" class="sdpi-item" id="delay_div">
+        <div type="range" class="sdpi-item sdShowTooltip" id="delay_div">
             <div class="sdpi-item-label">Delay (ms)</div>
             <div class="sdpi-item-value">
-                <input type="range" min="1" max="2000" value="1" class="sdProperty" oninput="setSettings()" id="delay">
+                <span class="clickable" value="1">1</span>
+                <input type="range" min="1" max="2000" data-suffix=" ms" value="1" class="sdProperty" oninput="setSettings()" id="delay">
+                <span class="clickable" value="2000">2000</span>
+                <label for="delay" class="rangeLabel"></label>
             </div>
         </div>
-        <div type="range" class="sdpi-item">
-            <details class="message">
-                <summary><label for="delay" id="delay_label"></label></summary>
-            </details>
+        <div class="sdpi-item">
+            <span class="titleAlignedSmall">(Use left/right keys for added precision)</span>
         </div>
+        <div class="sdpi-info-label hidden" style="top: -1000;" value="">Tooltip</div>
         <div type="checkbox" class="sdpi-item" id="dvAdvanced">
             <div class="sdpi-item-label">Advanced</div>
             <div class="sdpi-item-value">
@@ -119,6 +124,24 @@
             <div class="sdpi-item-value">
                 <input id="ignoreNewline" type="checkbox" value="" class="sdProperty sdCheckbox" oninput="setSettings()">
                 <label for="ignoreNewline" class="sdpi-item-label"><span></span>Don't treat "New Line" as Enter</label>
+            </div>
+        </div>
+        <div type="checkbox" class="sdpi-item">
+            <div class="sdpi-item-label">State</div>
+            <div class="sdpi-item-value">
+                <input id="rememberState" type="checkbox" value="" class="sdProperty sdCheckbox" oninput="setSettings()">
+                <label for="rememberState" class="sdpi-item-label"><span></span>Remember toggle state when switching profiles</label>
+            </div>
+        </div>
+        <hr />
+        <div id="dvStateSettings" style="display:none;">
+            <div class="sdpi-item" id="dvForgetState">
+                <div class="sdpi-item-label">Advanced</div>
+                <button class="sdpi-item-value" onclick="resetState()">Reset State</button>
+            </div>
+            <div class="sdpi-item" id="dvForgetAllStates">
+                <div class="sdpi-item-label">Advanced</div>
+                <button class="sdpi-item-value" onclick="resetAllStates()">Reset All Toggles States</button>
             </div>
         </div>
     </div>

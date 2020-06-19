@@ -1,4 +1,5 @@
 ﻿using BarRaider.SdTools;
+using SuperMacro.Actions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,11 +9,21 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using WindowsInput;
 using WindowsInput.Native;
 
 namespace SuperMacro.Backend
 {
+    //---------------------------------------------------
+    //          BarRaider's Hall Of Fame
+    // Subscriber: Geekie_Benji
+    // "Anonymous" - Tip: $10.10
+    // Havocxnoodles - 5 Gifted Subs
+    // Subscriber: CyberlightGames
+    // Subscriber: kermit_the_frog
+    // Subscriber: BuSheeZy
+    //---------------------------------------------------   
     internal static class ExtendedMacroHandler
     {
         private enum ExtendedCommand
@@ -43,14 +54,19 @@ namespace SuperMacro.Backend
             EXTENDED_MACRO_VARIABLE_UNSET = 23,
             EXTENDED_MACRO_VARIABLE_SET = 24,
             EXTENDED_MACRO_VARIABLE_SET_FROM_FILE = 25,
-
+            EXTENDED_MACRO_VARIABLE_SET_FROM_CLIPBOARD = 26,
+            EXTENDED_MACRO_VARIABLE_OUTPUT_TO_FILE = 27,
+            EXTENDED_MACRO_FUNCTIONS = 28,
+            EXTENDED_MACRO_STREAMDECK_SETKEYTITLE = 29
         }
 
-        private static readonly string[] EXTENDED_COMMANDS_LIST = { "PAUSE", "KEYDOWN", "KEYUP", "MOUSEMOVE", "MOUSEPOS", "MOUSEXY", "MSCROLLUP", "MSCROLLDOWN", "MSCROLLLEFT", "MSCROLLRIGHT", "MLEFTDOWN", "MLEFTUP", "MRIGHTDOWN", "MRIGHTUP", "MMIDDLEDOWN", "MMIDDLEUP", "MLEFTDBLCLICK", "MRIGHTDBLCLICK", "MSAVEPOS", "MLOADPOS", "INPUT", "OUTPUT", "VARUNSETALL", "VARUNSET", "VARSET", "VARSETFROMFILE" };
+        private static readonly string[] EXTENDED_COMMANDS_LIST = { "PAUSE", "KEYDOWN", "KEYUP", "MOUSEMOVE", "MOUSEPOS", "MOUSEXY", "MSCROLLUP", "MSCROLLDOWN", "MSCROLLLEFT", "MSCROLLRIGHT", "MLEFTDOWN", "MLEFTUP", "MRIGHTDOWN", "MRIGHTUP", "MMIDDLEDOWN", "MMIDDLEUP", "MLEFTDBLCLICK", "MRIGHTDBLCLICK", "MSAVEPOS", "MLOADPOS", "INPUT", "OUTPUT", "VARUNSETALL", "VARUNSET", "VARSET", "VARSETFROMFILE", "VARSETFROMCLIPBOARD", "OUTPUTTOFILE", "FUNC", "SETKEYTITLE" };
         private const string MOUSE_STORED_X_VARIABLE = "MOUSE_X";
         private const string MOUSE_STORED_Y_VARIABLE = "MOUSE_Y";
         private const char SUPERMACRO_EXTENDED_COMMAND_DELIMITER = ':';
-        
+        private const char SUPERMACRO_VARIABLE_PREFIX = '$';
+
+        public delegate void SetKeyTitle(string title);
 
         private static readonly Dictionary<VirtualKeyCode, bool> dicRepeatKeydown = new Dictionary<VirtualKeyCode, bool>();
         private static readonly Dictionary<string, string> dicVariables = new Dictionary<string, string>();
@@ -82,7 +98,38 @@ namespace SuperMacro.Backend
             return false;
         }
 
-        public static void HandleExtendedMacro(InputSimulator iis, VirtualKeyCodeContainer macro)
+        /// <summary>
+        /// Check if the variableString is an actual variable in the dictionary and starting with a $ sign.
+        /// If it is - return that value.
+        /// Otherwise, return the original string
+        /// </summary>
+        /// <param name="variable"></param>
+        /// <param name="dicVariables"></param>
+        /// <returns></returns>
+        public static string TryExtractVariable(string variableString)
+        {
+            if (String.IsNullOrEmpty(variableString))
+            {
+                return variableString;
+            }
+
+            if (variableString[0] != SUPERMACRO_VARIABLE_PREFIX)
+            {
+                return variableString;
+            }
+
+            // Remove the '$' sign and make it uppercase
+            string variableName = variableString.Substring(1).ToUpperInvariant();
+            if (!dicVariables.ContainsKey(variableName))
+            {
+                Logger.Instance.LogMessage(TracingLevel.ERROR, $"HandleFunctionRequest TryExtractVariable: Variable does not exist {variableName}");
+                return variableString;
+            }
+
+            return dicVariables[variableName];
+        }
+
+        public static void HandleExtendedMacro(InputSimulator iis, VirtualKeyCodeContainer macro, WriterSettings settings, SetKeyTitle SetKeyTitleFunction)
         {
             try
             {
@@ -90,11 +137,16 @@ namespace SuperMacro.Backend
                 int index = EXTENDED_COMMANDS_LIST.ToList().FindIndex(cmd => cmd == macro.ExtendedCommand);
                 ExtendedCommand command = (ExtendedCommand)index;
 
-
-                // Check if it's a pause command
-                if (command == ExtendedCommand.EXTENDED_MACRO_PAUSE)
+                // Check if this is a function command
+                if (command == ExtendedCommand.EXTENDED_MACRO_FUNCTIONS)
                 {
-                    if (Int32.TryParse(macro.ExtendedData, out int pauseLength))
+                    FunctionsHandler.HandleFunctionRequest(macro.ExtendedData, dicVariables);
+                }
+                // Check if it's a pause command
+                else if (command == ExtendedCommand.EXTENDED_MACRO_PAUSE)
+                {
+                    string pauseLengthParam = TryExtractVariable(macro.ExtendedData);
+                    if (Int32.TryParse(pauseLengthParam, out int pauseLength))
                     {
                         Thread.Sleep(pauseLength);
                         return;
@@ -113,9 +165,20 @@ namespace SuperMacro.Backend
                 }
                 else if (command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_INPUT || command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_OUTPUT ||
                          command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_UNSETALL || command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_UNSET ||
-                         command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_SET || command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_SET_FROM_FILE)
+                         command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_SET || command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_SET_FROM_FILE ||
+                         command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_SET_FROM_CLIPBOARD || command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_OUTPUT_TO_FILE)
                 {
-                    HandleVariableCommand(command, iis, macro);
+                    HandleVariableCommand(command, iis, macro, settings);
+                }
+                else if (command == ExtendedCommand.EXTENDED_MACRO_STREAMDECK_SETKEYTITLE)
+                {
+                    if (SetKeyTitleFunction == null)
+                    {
+                        Logger.Instance.LogMessage(TracingLevel.ERROR, $"SETKEYTITLE called but callback function is null");
+                        return;
+                    }
+                    string titleString = TryExtractVariable(macro.ExtendedData).Replace(@"\n","\n");
+                    SetKeyTitleFunction(titleString);
                 }
                 else
                 {
@@ -313,14 +376,20 @@ namespace SuperMacro.Backend
             }
         }
 
-        private static void HandleVariableCommand(ExtendedCommand command, InputSimulator iis, VirtualKeyCodeContainer macro)
+        private static void HandleVariableCommand(ExtendedCommand command, InputSimulator iis, VirtualKeyCodeContainer macro, WriterSettings settings)
         {
             string upperExtendedData = macro.ExtendedData.ToUpperInvariant();
 
             // Variables
             if (command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_INPUT)
             {
-                using InputBox input = new InputBox("Variable Input", $"Enter value for \"{upperExtendedData}\":");
+                string defaultValue = String.Empty;
+                if (!String.IsNullOrEmpty(upperExtendedData) && dicVariables.ContainsKey(upperExtendedData))
+                {
+                    defaultValue = dicVariables[upperExtendedData];
+                }
+
+                using InputBox input = new InputBox("Variable Input", $"Enter value for \"{upperExtendedData}\":", defaultValue);
                 input.ShowDialog();
 
                 // Value exists (cancel button was NOT pressed)
@@ -333,7 +402,8 @@ namespace SuperMacro.Backend
             {
                 if (dicVariables.ContainsKey(upperExtendedData))
                 {
-                    iis.Keyboard.TextEntry(dicVariables[upperExtendedData]);
+                    SuperMacroWriter textWriter = new SuperMacroWriter();
+                    textWriter.SendInput(dicVariables[upperExtendedData], settings, null, false);
                 }
                 else
                 {
@@ -385,6 +455,52 @@ namespace SuperMacro.Backend
 
                 dicVariables[splitData[0].ToUpperInvariant()] = varInput;
             }
+            else if (command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_SET_FROM_CLIPBOARD)
+            {
+                var value = ReadFromClipboard();
+
+                // Value exists (cancel button was NOT pressed)
+                if (!string.IsNullOrEmpty(value))
+                {
+                    dicVariables[upperExtendedData] = value;
+                }
+            }
+            else if (command == ExtendedCommand.EXTENDED_MACRO_VARIABLE_OUTPUT_TO_FILE)
+            {
+                if (string.IsNullOrEmpty(macro.ExtendedData))
+                {
+                    Logger.Instance.LogMessage(TracingLevel.WARN, $"OutputToFile called without any params");
+                    return;
+                }
+
+                var splitData = macro.ExtendedData.Split(new char[] { ':' }, 2);
+                if (splitData.Length != 2)
+                {
+                    Logger.Instance.LogMessage(TracingLevel.WARN, $"OutputToFile called without incorrect extended data: {macro.ExtendedData}");
+                    return;
+                }
+
+                string variableName = splitData[0].ToUpperInvariant();
+                string fileName = splitData[1];
+
+                // Check if variable exists
+                if (!dicVariables.ContainsKey(variableName))
+                {
+                    Logger.Instance.LogMessage(TracingLevel.WARN, $"OutputToFile called without non existing variable: {variableName}");
+                    return;
+                }
+
+                // Try to save the data in the variable to the filename
+                try
+                {
+                    File.WriteAllText(fileName, dicVariables[variableName]);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance.LogMessage(TracingLevel.WARN, $"OutputToFile exception: {macro.ExtendedData} {ex}");
+                }
+                return;
+            }
             else
             {
                 Logger.Instance.LogMessage(TracingLevel.ERROR, $"HandleVariableCommand - Invalid command {command}");
@@ -404,6 +520,28 @@ namespace SuperMacro.Backend
                 }
                 iis.Keyboard.KeyUp(code);
             });
+        }
+
+        private static String ReadFromClipboard()
+        {
+            string result = null;
+            Thread staThread = new Thread(
+                delegate ()
+                {
+                    try
+                    {
+                        result = Clipboard.GetText(System.Windows.Forms.TextDataFormat.Text);
+                    }
+
+                    catch (Exception ex)
+                    {
+                        Logger.Instance.LogMessage(TracingLevel.ERROR, $"ReadFromClipboard exception: {ex}");
+                    }
+                });
+            staThread.SetApartmentState(ApartmentState.STA);
+            staThread.Start();
+            staThread.Join();
+            return result;
         }
     }
 }
