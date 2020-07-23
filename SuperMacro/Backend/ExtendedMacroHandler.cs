@@ -57,10 +57,11 @@ namespace SuperMacro.Backend
             EXTENDED_MACRO_VARIABLE_SET_FROM_CLIPBOARD = 26,
             EXTENDED_MACRO_VARIABLE_OUTPUT_TO_FILE = 27,
             EXTENDED_MACRO_FUNCTIONS = 28,
-            EXTENDED_MACRO_STREAMDECK_SETKEYTITLE = 29
+            EXTENDED_MACRO_STREAMDECK_SETKEYTITLE = 29,
+            EXTENDED_MACRO_STREAMDECK_EXECUTE = 30
         }
 
-        private static readonly string[] EXTENDED_COMMANDS_LIST = { "PAUSE", "KEYDOWN", "KEYUP", "MOUSEMOVE", "MOUSEPOS", "MOUSEXY", "MSCROLLUP", "MSCROLLDOWN", "MSCROLLLEFT", "MSCROLLRIGHT", "MLEFTDOWN", "MLEFTUP", "MRIGHTDOWN", "MRIGHTUP", "MMIDDLEDOWN", "MMIDDLEUP", "MLEFTDBLCLICK", "MRIGHTDBLCLICK", "MSAVEPOS", "MLOADPOS", "INPUT", "OUTPUT", "VARUNSETALL", "VARUNSET", "VARSET", "VARSETFROMFILE", "VARSETFROMCLIPBOARD", "OUTPUTTOFILE", "FUNC", "SETKEYTITLE" };
+        private static readonly string[] EXTENDED_COMMANDS_LIST = { "PAUSE", "KEYDOWN", "KEYUP", "MOUSEMOVE", "MOUSEPOS", "MOUSEXY", "MSCROLLUP", "MSCROLLDOWN", "MSCROLLLEFT", "MSCROLLRIGHT", "MLEFTDOWN", "MLEFTUP", "MRIGHTDOWN", "MRIGHTUP", "MMIDDLEDOWN", "MMIDDLEUP", "MLEFTDBLCLICK", "MRIGHTDBLCLICK", "MSAVEPOS", "MLOADPOS", "INPUT", "OUTPUT", "VARUNSETALL", "VARUNSET", "VARSET", "VARSETFROMFILE", "VARSETFROMCLIPBOARD", "OUTPUTTOFILE", "FUNC", "SETKEYTITLE", "EXECUTECMDPROCESS" };
         private const string MOUSE_STORED_X_VARIABLE = "MOUSE_X";
         private const string MOUSE_STORED_Y_VARIABLE = "MOUSE_Y";
         private const char SUPERMACRO_EXTENDED_COMMAND_DELIMITER = ':';
@@ -179,6 +180,16 @@ namespace SuperMacro.Backend
                     }
                     string titleString = TryExtractVariable(macro.ExtendedData).Replace(@"\n","\n");
                     SetKeyTitleFunction(titleString);
+                }
+                else if (command == ExtendedCommand.EXTENDED_MACRO_STREAMDECK_EXECUTE)
+                {
+                    var executeParams = macro.ExtendedData;
+                    if (string.IsNullOrWhiteSpace(executeParams))
+                    {
+                        Logger.Instance.LogMessage(TracingLevel.ERROR, $"EXECUTE Command - No command was set to execute");
+                        return;
+                    }
+                    ExecuteCommandHandler.HandleExecuteCmdProcess(macro.ExtendedData);
                 }
                 else
                 {
