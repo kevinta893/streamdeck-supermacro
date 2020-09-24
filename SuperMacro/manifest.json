@@ -27,7 +27,7 @@
       ],
       "SupportedInMultiActions": false,
       "Tooltip": "Toggle between two different sets of Super Macros.",
-      "UUID": "com.barraider.supermacrotoggle",
+      "UUID": "com.barraider.kevinta893.supermacrotoggle",
       "PropertyInspectorPath": "PropertyInspector/SuperMacro/Toggle.html"
     },
     {
@@ -42,7 +42,7 @@
       ],
       "SupportedInMultiActions": false,
       "Tooltip": "Repeats the same macro again and again, until the key is pressed again.",
-      "UUID": "com.barraider.supermacrostickymacro",
+      "UUID": "com.barraider.kevinta893.supermacrostickymacro",
       "PropertyInspectorPath": "PropertyInspector/SuperMacro/StickyMacro.html"
     },
     {
@@ -57,7 +57,7 @@
       ],
       "SupportedInMultiActions": false,
       "Tooltip": "Repeats the same keystroke again and again, until the key is pressed again. Example of usage is games that don't have an auto-run feature and require a keystroke to run",
-      "UUID": "com.barraider.supermacrostickykeystroke",
+      "UUID": "com.barraider.kevinta893.supermacrostickykeystroke",
       "PropertyInspectorPath": "PropertyInspector/SuperMacro/StickyKeypress.html"
     },
     {
@@ -72,7 +72,7 @@
       ],
       "SupportedInMultiActions": false,
       "Tooltip": "Repeats a keystroke again and again as long as you press the button. Can be either one single character or one set of keystrokes (like {{ctrl}{f5}} to refresh)",
-      "UUID": "com.barraider.keystrokeptt",
+      "UUID": "com.barraider.kevinta893.keystrokeptt",
       "PropertyInspectorPath": "PropertyInspector/SuperMacro/KeystrokePTT.html"
     },
     {
@@ -87,7 +87,7 @@
       ],
       "SupportedInMultiActions": false,
       "Tooltip": "Shows you the current mouse location on a key, and lets you copy the position",
-      "UUID": "com.barraider.supermacro.mouselocation",
+      "UUID": "com.barraider.kevinta893.supermacro.mouselocation",
       "PropertyInspectorPath": "PropertyInspector/SuperMacro/MouseLocation.html"
     }
   ],
@@ -97,7 +97,7 @@
   "Icon": "Images/pluginIcon",
   "URL": "https://BarRaider.com/",
   "Version": "1.8.1",
-  "CodePath": "com.barraider.supermacro",
+  "CodePath": "com.barraider.kevinta893.supermacro",
   "Category": "Super Macro [BarRaider]",
   "CategoryIcon": "Images/categoryIcon",
   "OS": [

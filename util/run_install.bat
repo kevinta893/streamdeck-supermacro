@@ -1,1 +1,1 @@
-call install.bat Debug C:\Users\kevin\Documents\Github\streamdeck-supermacro\SuperMacro com.barraider.supermacro
+call install.bat Debug C:\Users\kevin\Documents\Github\streamdeck-supermacro\SuperMacro com.barraider.kevinta893.supermacro
